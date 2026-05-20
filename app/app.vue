@@ -1,7 +1,7 @@
 <script setup lang="ts">
 useHead({
   titleTemplate: (pageName) => {
-    return pageName ? `LazySongbook | ${pageName}` : 'LazySongbook'
+    return pageName ? `Lazy songbook | ${pageName}` : 'Lazy songbook'
   },
 })
 </script>

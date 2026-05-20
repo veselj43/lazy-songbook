@@ -1,0 +1,11 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "plugins": ["vue"],
+  "singleQuote": true,
+  "semi": false,
+  "sortImports": true,
+  "sortTailwindcss": {
+    "stylesheet": "./app/assets/css/main.css"
+  },
+  "ignorePatterns": []
+}

@@ -25,3 +25,8 @@ logs
 
 # clerk configuration (can include secrets)
 /.clerk/
+
+# SQLite database files
+*.db
+*.db-shm
+*.db-wal

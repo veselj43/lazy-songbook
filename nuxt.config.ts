@@ -3,7 +3,9 @@ import type { NuxtPage } from 'nuxt/schema'
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
-  devtools: { enabled: true },
+  devtools: {
+    enabled: true,
+  },
 
   modules: [
     //
@@ -41,6 +43,12 @@ export default defineNuxtConfig({
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
         // { rel: 'icon', type: 'image/png', href: '/favicon-64.png' },
       ],
+    },
+  },
+
+  nitro: {
+    rollupConfig: {
+      external: ['better-sqlite3'],
     },
   },
 
