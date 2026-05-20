@@ -16,14 +16,14 @@ interface UseAsyncActionResultBase<TData = unknown, TError = unknown> {
 }
 
 export function useAsyncAction<TData = unknown, TError = unknown>(
-  action: () => Promise<TData>
+  action: () => Promise<TData>,
 ): UseAsyncActionResultBase<TData, TError> & UseAsyncActionExecuteWithoutParams
 export function useAsyncAction<TData = unknown, TError = unknown, TParams = any>(
-  action: (params: TParams) => Promise<TData>
+  action: (params: TParams) => Promise<TData>,
 ): UseAsyncActionResultBase<TData, TError> & UseAsyncActionExecuteWithParams<TParams>
 
 export function useAsyncAction<TData = unknown, TError = unknown, TParams = void>(
-  action: (params: TParams) => Promise<TData>
+  action: (params: TParams) => Promise<TData>,
 ): UseAsyncActionResultBase<TData, TError> &
   (UseAsyncActionExecuteWithoutParams | UseAsyncActionExecuteWithParams<TParams>) {
   const status = ref<AsyncDataRequestStatus>('idle')

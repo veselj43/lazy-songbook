@@ -26,3 +26,7 @@ When the PoC will pass expectations, local solutions will be swapped for deploya
   - later also sharing
 - DB - sqlite for now
   - calls to DB will be separated from the rest of the app in service layer, so DB solution can be swapped later if needed
+
+## Instructions
+
+- Do not run dev server or any processes that run on the background indefinitely

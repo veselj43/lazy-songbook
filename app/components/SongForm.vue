@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { CreateSongInput } from '~~/shared/types/song'
 import type { FormSubmitEvent } from '@nuxt/ui'
+import type { CreateSongInput } from '~~/shared/types/song'
 
 const props = defineProps<{
   initialValues?: CreateSongInput
@@ -33,16 +33,17 @@ function onSubmit(event: FormSubmitEvent<CreateSongInput>) {
     </UFormField>
 
     <UFormField label="Content (lyrics & chords)" name="content">
-      <UTextarea v-model="state.content" :rows="16" placeholder="G  D  Am&#10;Mama, take this badge off of me..." class="w-full font-mono" />
+      <UTextarea
+        v-model="state.content"
+        :rows="16"
+        placeholder="G  D  Am&#10;Mama, take this badge off of me..."
+        class="w-full font-mono"
+      />
     </UFormField>
 
     <div class="flex gap-2">
-      <UButton type="submit" :loading="loading">
-        Save
-      </UButton>
-      <UButton variant="ghost" @click="$router.back()">
-        Cancel
-      </UButton>
+      <UButton type="submit" :loading="loading"> Save </UButton>
+      <UButton variant="ghost" @click="$router.back()"> Cancel </UButton>
     </div>
   </UForm>
 </template>

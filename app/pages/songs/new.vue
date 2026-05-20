@@ -1,18 +1,20 @@
 <script setup lang="ts">
 import type { CreateSongInput } from '~~/shared/types/song'
 
-definePageMeta({ title: 'New Song' })
+import LayoutMain from '../_partial/LayoutMain.vue'
 
-const { createSong } = useSongs()
-const { execute, status } = useAsyncAction(async (values: CreateSongInput) => {
-  const song = await createSong(values)
-  await navigateTo(`/songs/${song.id}`)
+useHead({ title: 'New song' })
+
+const { execute, status } = useAsyncAction(async (data: CreateSongInput) => {
+  const song = await createSongHandler({ data })
+  await navigateTo(`/songs/${song.id}/view`)
 })
 </script>
 
 <template>
-  <div class="mx-auto max-w-2xl p-6">
-    <h1 class="mb-6 text-2xl font-bold">Add new song</h1>
+  <LayoutMain>
+    <AppHeader>Add new song</AppHeader>
+
     <SongForm :loading="status === 'pending'" @submit="execute" />
-  </div>
+  </LayoutMain>
 </template>

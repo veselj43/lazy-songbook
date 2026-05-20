@@ -12,7 +12,21 @@ const tailwindMergeConfig: TWMergeConfig = {
     },
     classGroups: {
       'font-size': [
-        { text: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'subheadline', 'body', 'footnote', 'caption1', 'caption2'] },
+        {
+          text: [
+            'h1',
+            'h2',
+            'h3',
+            'h4',
+            'h5',
+            'h6',
+            'subheadline',
+            'body',
+            'footnote',
+            'caption1',
+            'caption2',
+          ],
+        },
       ],
       'font-weight': [{ font: ['regular'] }],
     },

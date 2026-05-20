@@ -1,15 +1,14 @@
-import { songService } from '../../services/songService'
+import { createSongSchema } from '~~/shared/types/song'
+
+import { songService } from '../../modules/songs/song.service'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
 
-  if (!body.name?.trim() || !body.author?.trim()) {
-    throw createError({ statusCode: 400, statusMessage: 'Name and author are required' })
+  const parsed = createSongSchema.safeParse(body)
+  if (!parsed.success) {
+    throw createError({ statusCode: 400, statusMessage: parsed.error.issues[0]?.message })
   }
 
-  return songService.create({
-    author: body.author.trim(),
-    name: body.name.trim(),
-    content: body.content ?? '',
-  })
+  return songService.create(parsed.data)
 })
