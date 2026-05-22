@@ -41,7 +41,7 @@ export default defineNuxtConfig({
     head: {
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-        // { rel: 'icon', type: 'image/png', href: '/favicon-64.png' },
+        { rel: 'icon', type: 'image/png', href: '/favicon-64.png' },
       ],
     },
   },
