@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { DropdownMenuItem } from '@nuxt/ui'
+
 import LayoutMain from '~/pages/_partial/LayoutMain.vue'
 
 const route = useRoute()
@@ -24,6 +26,22 @@ const handleDelete = async () => {
 
   await navigateTo('/')
 }
+
+const menuItems = computed<DropdownMenuItem[][]>(() => [
+  [
+    {
+      label: 'Edit',
+      icon: 'i-lucide-pencil',
+      to: `/songs/${currentId.value}/edit`,
+    },
+    {
+      label: 'Delete',
+      icon: 'i-lucide-trash-2',
+      color: 'error',
+      onSelect: handleDelete,
+    },
+  ],
+])
 </script>
 
 <template>
@@ -31,6 +49,14 @@ const handleDelete = async () => {
     <div v-if="status === 'pending'" class="py-12 text-center text-gray-500">Loading...</div>
     <div v-else-if="song">
       <AppHeader>
+        <template #leftPrepend>
+          <UButton
+            variant="ghost"
+            color="neutral"
+            icon="i-lucide:chevron-left"
+            to="/songs"
+          ></UButton>
+        </template>
         <template #header>
           <div>
             <h1 class="text-2xl font-bold">{{ song.name }}</h1>
@@ -39,20 +65,26 @@ const handleDelete = async () => {
         </template>
 
         <template #right>
-          <div class="flex gap-2">
-            <UButton :to="`/songs/${song.id}/edit`" variant="soft" icon="i-lucide-pencil">
-              Edit
-            </UButton>
-            <UButton variant="soft" color="error" icon="i-lucide-trash-2" @click="handleDelete">
-              Delete
-            </UButton>
-          </div>
+          <UDropdownMenu
+            :items="menuItems"
+            :content="{
+              align: 'end',
+              side: 'bottom',
+            }"
+          >
+            <UButton
+              variant="ghost"
+              color="neutral"
+              icon="i-lucide:more-vertical"
+              aria-label="Actions"
+            />
+          </UDropdownMenu>
         </template>
       </AppHeader>
 
-      <UCard>
+      <div class="border-y border-y-neutral-200 py-4 overflow-x-auto">
         <SongContent :content="song.content" />
-      </UCard>
+      </div>
     </div>
   </LayoutMain>
 </template>

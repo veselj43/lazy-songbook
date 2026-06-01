@@ -52,6 +52,10 @@ export default defineNuxtConfig({
     },
   },
 
+  ui: {
+    colorMode: false,
+  },
+
   runtimeConfig: {
     public: {},
   },

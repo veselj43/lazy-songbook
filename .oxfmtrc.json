@@ -5,7 +5,8 @@
   "semi": false,
   "sortImports": true,
   "sortTailwindcss": {
-    "stylesheet": "./app/assets/css/main.css"
+    "stylesheet": "./app/assets/css/main.css",
+    "functions": ["tvCn", "tcf"]
   },
   "ignorePatterns": []
 }

@@ -1,2 +1,14 @@
 @import 'tailwindcss';
 @import '@nuxt/ui';
+
+:root {
+  --ui-primary: oklch(20.8% 0.042 265.755); /* slate-900 */
+}
+
+/* .dark {
+  --ui-bg: var(--ui-color-neutral-800);
+  --ui-bg-muted: var(--ui-color-neutral-800);
+  --ui-bg-elevated: var(--ui-color-neutral-800);
+  --ui-bg-accented: var(--ui-color-neutral-700);
+  --ui-bg-inverted: white;
+} */
