@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { tv, type VariantProps } from 'tailwind-variants'
 
+import { tvCn } from '~/lib/tailwind'
+
 const tvLayout = tv({
   slots: {
     page: 'px-2',
@@ -22,6 +24,9 @@ type TvProps = VariantProps<typeof tvLayout>
 const props = withDefaults(
   defineProps<{
     width?: TvProps['width']
+    ui?: {
+      page?: string
+    }
   }>(),
   {
     scrollable: false,
@@ -29,11 +34,11 @@ const props = withDefaults(
   },
 )
 
-const styles = computed(() => tvLayout(props))
+const styles = computed(() => tvLayout({ width: props.width }))
 </script>
 
 <template>
-  <div :class="styles.page()">
+  <div :class="tvCn(styles.page(), props.ui?.page)">
     <slot />
   </div>
 </template>

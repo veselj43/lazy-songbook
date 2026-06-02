@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from '@nuxt/ui'
-import type { CreateSongInput } from '~~/shared/types/song'
+import type { CreateSongInput } from '~~/shared/schema/song'
 
 const props = defineProps<{
   initialValues?: CreateSongInput

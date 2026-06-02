@@ -60,7 +60,7 @@ const menuItems = computed<DropdownMenuItem[][]>(() => [
       <template #header>
         <AsyncContent :fetchStatus="fetchStatus">
           <div v-if="song">
-            <h1 class="text-2xl font-bold">{{ song.name }}</h1>
+            <h1 class="text-xl font-bold">{{ song.name }}</h1>
             <p class="text-gray-500">{{ song.author }}</p>
           </div>
         </AsyncContent>

@@ -1,10 +1,29 @@
-import type { CreateSongInput, Song, SongListResponse, UpdateSongInput } from '~~/shared/types/song'
+import type {
+  CreateSongInput,
+  Song,
+  SongListResponse,
+  SongSort,
+  UpdateSongInput,
+} from '~~/shared/schema/song'
 
-const fetchSongs = () => $fetch<SongListResponse>('/api/songs')
+interface FetchSongsBody {
+  page?: number
+  pageSize?: number
+  sort?: SongSort
+  search?: string
+}
+
+const fetchSongs = (body: FetchSongsBody = {}) =>
+  $fetch<SongListResponse>('/api/songs/filter', { method: 'POST', body })
 
 export const songsDataKey = 'songs'
 
-export const useFetchSongs = () => useAsyncData(songsDataKey, () => fetchSongs())
+export const useFetchSongs = (body?: MaybeRefOrGetter<FetchSongsBody>) => {
+  const bodyRef = computed<FetchSongsBody>(() => toValue(body) ?? {})
+  return useAsyncData(songsDataKey, () => fetchSongs(bodyRef.value), {
+    watch: [bodyRef],
+  })
+}
 
 const fetchSong = ({ id }: { id: string }) => $fetch<Song>(`/api/songs/${id}`)
 

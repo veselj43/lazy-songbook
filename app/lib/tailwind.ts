@@ -42,7 +42,7 @@ defaultConfig.twMergeConfig = tailwindMergeConfig
  * Now tailwind-merge resolves both both out of the box.
  */
 export const tvCn = (...inputs: ClassValue[]) => {
-  return cnMerge(inputs)
+  return cnMerge(inputs)()
 }
 
 /**

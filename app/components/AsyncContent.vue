@@ -25,7 +25,9 @@ const props = withDefaults(
 
   <template v-else-if="fetchStatus === 'error'">
     <slot name="error">
-      <UBanner> Something went wrong please try again. </UBanner>
+      <UAlert color="error" variant="subtle">
+        <template #title> Something went wrong, please try again. </template>
+      </UAlert>
     </slot>
   </template>
 </template>

@@ -5,7 +5,7 @@ import { tcf } from './lib/tailwind'
 
 useHead({
   titleTemplate: (pageName) => {
-    return pageName ? `Lazy songbook | ${pageName}` : 'Lazy songbook'
+    return pageName ? `LazySongbook | ${pageName}` : 'LazySongbook'
   },
 })
 
@@ -21,12 +21,12 @@ const itemsSection = [
 
 const itemsGlobal = [
   [
-    {
-      label: 'Settings',
-      icon: 'i-lucide:cog',
-      to: '/settings',
-      disabled: true,
-    },
+    // {
+    //   label: 'Settings',
+    //   icon: 'i-lucide:cog',
+    //   to: '/settings',
+    //   disabled: true,
+    // },
   ],
 ] as const satisfies NavigationMenuItem[][]
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { CreateSongInput } from '~~/shared/types/song'
+import type { CreateSongInput } from '~~/shared/schema/song'
 
 import LayoutMain from '../_partial/LayoutMain.vue'
 
