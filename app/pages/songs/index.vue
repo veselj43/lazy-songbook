@@ -5,21 +5,7 @@ useHead({
   title: 'Songs',
 })
 
-const { data, status, refresh } = useAsyncData('songs', () => fetchSongs())
-
-const { confirm } = useConfirm()
-
-const handleDelete = async ({ song }: { song: Song }) => {
-  if (!song) return
-
-  const result = await deleteSongHandler({
-    confirm,
-    song,
-  })
-  if (!result) return
-
-  await refresh()
-}
+const { data, status: fetchStatus } = useFetchSongs()
 </script>
 
 <template>
@@ -31,26 +17,28 @@ const handleDelete = async ({ song }: { song: Song }) => {
       </template>
     </AppHeader>
 
-    <div v-if="!data?.items?.length" class="py-12 text-center text-gray-500">
-      No songs yet. Add your first one!
-    </div>
+    <AsyncContent :fetchStatus="fetchStatus">
+      <div v-if="!data?.items?.length" class="py-12 text-center text-gray-500">
+        No songs yet. Add your first one!
+      </div>
 
-    <div v-else class="flex flex-col gap-3">
-      <NuxtLink
-        v-for="song in data.items"
-        :key="song.id"
-        :to="`/songs/${song.id}/view`"
-        class="min-w-0 flex-1"
-      >
-        <UCard>
-          <div class="flex items-center justify-between">
-            <div>
-              <h2 class="text-lg font-semibold">{{ song.name }}</h2>
-              <p class="text-sm text-gray-500">{{ song.author }}</p>
+      <div v-else class="flex flex-col gap-3">
+        <NuxtLink
+          v-for="song in data.items"
+          :key="song.id"
+          :to="`/songs/${song.id}/view`"
+          class="min-w-0 flex-1"
+        >
+          <UCard>
+            <div class="flex items-center justify-between">
+              <div>
+                <h2 class="text-lg font-semibold">{{ song.name }}</h2>
+                <p class="text-sm text-gray-500">{{ song.author }}</p>
+              </div>
             </div>
-          </div>
-        </UCard>
-      </NuxtLink>
-    </div>
+          </UCard>
+        </NuxtLink>
+      </div>
+    </AsyncContent>
   </LayoutMain>
 </template>

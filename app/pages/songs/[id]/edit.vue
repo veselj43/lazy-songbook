@@ -23,13 +23,13 @@ const { execute, status: submitStatus } = useAsyncAction(async (data: CreateSong
   <LayoutMain>
     <AppHeader>Edit song</AppHeader>
 
-    <div v-if="fetchStatus === 'pending'" class="py-12 text-center text-gray-500">Loading...</div>
-
-    <SongForm
-      v-else-if="song"
-      :initial-values="{ author: song.author, name: song.name, content: song.content }"
-      :loading="submitStatus === 'pending'"
-      @submit="execute"
-    />
+    <AsyncContent :fetchStatus="fetchStatus">
+      <SongForm
+        v-if="song"
+        :initial-values="{ author: song.author, name: song.name, content: song.content }"
+        :loading="submitStatus === 'pending'"
+        @submit="execute"
+      />
+    </AsyncContent>
   </LayoutMain>
 </template>

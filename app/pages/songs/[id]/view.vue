@@ -7,7 +7,7 @@ const route = useRoute()
 
 const currentId = computed(() => route.params.id as string)
 
-const { data: song, status } = useFetchSong({ id: currentId.value })
+const { data: song, status: fetchStatus } = useFetchSong({ id: currentId.value })
 
 useHead({
   title: () => (song.value ? `${song.value.name} by ${song.value.author}` : 'song'),
@@ -18,8 +18,14 @@ const { confirm } = useConfirm()
 const handleDelete = async () => {
   if (!song.value) return
 
+  const { name, author } = song.value
+
   const result = await deleteSongHandler({
-    confirm,
+    confirmHandler: () =>
+      confirm({
+        title: 'Delete song?',
+        description: `${name} by ${author}`,
+      }),
     song: song.value,
   })
   if (!result) return
@@ -46,45 +52,42 @@ const menuItems = computed<DropdownMenuItem[][]>(() => [
 
 <template>
   <LayoutMain>
-    <div v-if="status === 'pending'" class="py-12 text-center text-gray-500">Loading...</div>
-    <div v-else-if="song">
-      <AppHeader>
-        <template #leftPrepend>
-          <UButton
-            variant="ghost"
-            color="neutral"
-            icon="i-lucide:chevron-left"
-            to="/songs"
-          ></UButton>
-        </template>
-        <template #header>
-          <div>
+    <AppHeader>
+      <template #leftPrepend>
+        <UButton variant="ghost" color="neutral" icon="i-lucide:chevron-left" to="/songs"></UButton>
+      </template>
+
+      <template #header>
+        <AsyncContent :fetchStatus="fetchStatus">
+          <div v-if="song">
             <h1 class="text-2xl font-bold">{{ song.name }}</h1>
             <p class="text-gray-500">{{ song.author }}</p>
           </div>
-        </template>
+        </AsyncContent>
+      </template>
 
-        <template #right>
-          <UDropdownMenu
-            :items="menuItems"
-            :content="{
-              align: 'end',
-              side: 'bottom',
-            }"
-          >
-            <UButton
-              variant="ghost"
-              color="neutral"
-              icon="i-lucide:more-vertical"
-              aria-label="Actions"
-            />
-          </UDropdownMenu>
-        </template>
-      </AppHeader>
+      <template #right>
+        <UDropdownMenu
+          :items="menuItems"
+          :content="{
+            align: 'end',
+            side: 'bottom',
+          }"
+        >
+          <UButton
+            variant="ghost"
+            color="neutral"
+            icon="i-lucide:more-vertical"
+            aria-label="Actions"
+          />
+        </UDropdownMenu>
+      </template>
+    </AppHeader>
 
-      <div class="border-y border-y-neutral-200 py-4 overflow-x-auto">
+    <AsyncContent :fetchStatus="fetchStatus">
+      <div v-if="song" class="overflow-x-auto border-y border-y-neutral-200 py-4">
         <SongContent :content="song.content" />
       </div>
-    </div>
+    </AsyncContent>
   </LayoutMain>
 </template>
