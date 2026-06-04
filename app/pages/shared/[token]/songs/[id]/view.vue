@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import LayoutMain from '~/pages/_partial/LayoutMain.vue'
 
-const route = useRoute()
-const token = computed(() => route.params.token as string)
-const id = computed(() => route.params.id as string)
+const route = useRoute('shared-token-songs-id-view')
+const token = computed(() => route.params.token)
+const id = computed(() => route.params.id)
 
 const { data: song, status: fetchStatus } = useFetchShareSong({
   token: token.value,

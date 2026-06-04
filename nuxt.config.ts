@@ -10,8 +10,9 @@ export default defineNuxtConfig({
   modules: [
     //
     '@nuxt/ui',
+    '@nuxt/icon',
     '@clerk/nuxt',
-    '@compodium/nuxt',
+    '@pinia/nuxt',
   ],
 
   ssr: false,
@@ -59,6 +60,7 @@ export default defineNuxtConfig({
         '@clerk/vue',
         '@vueuse/core',
         '@vueuse/integrations',
+        '@vueuse/integrations/useQRCode',
         'tailwind-variants',
       ],
     },
@@ -66,6 +68,10 @@ export default defineNuxtConfig({
 
   ui: {
     colorMode: false,
+  },
+
+  experimental: {
+    typedPages: true,
   },
 
   runtimeConfig: {

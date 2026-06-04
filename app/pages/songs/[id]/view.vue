@@ -7,17 +7,31 @@ definePageMeta({
   middleware: 'auth-required',
 })
 
-const route = useRoute()
+const route = useRoute('songs-id-view')
 
-const currentId = computed(() => route.params.id as string)
+const currentId = computed(() => route.params.id)
 
 const { data: song, status: fetchStatus } = useFetchSong({ id: currentId.value })
+const { data: share, status: shareStatus, refresh: refreshShare } = useFetchOwnerShare()
 
 useHead({
   title: () => (song.value ? `${song.value.name} by ${song.value.author}` : 'song'),
 })
 
 const { confirm } = useConfirm()
+
+const playTogetherActive = computed(() => share.value?.currentSongId === currentId.value)
+
+const { execute: handlePlayTogetherToggle, status: playTogetherStatus } = useAsyncAction(
+  async () => {
+    if (!song.value) return
+
+    await setCurrentSongHandler({
+      songId: playTogetherActive.value ? null : song.value.id,
+    })
+    await refreshShare()
+  },
+)
 
 const handleDelete = async () => {
   if (!song.value) return
@@ -68,6 +82,18 @@ const menuItems = computed<DropdownMenuItem[][]>(() => [
       </template>
 
       <template #right>
+        <UButton
+          v-if="song"
+          :icon="playTogetherActive ? 'i-lucide:square' : 'i-lucide:play'"
+          :variant="playTogetherActive ? 'solid' : 'outline'"
+          :color="playTogetherActive ? 'secondary' : 'neutral'"
+          :loading="shareStatus === 'pending' || playTogetherStatus === 'pending'"
+          class="shrink-0"
+          @click="handlePlayTogetherToggle()"
+        >
+          Play together
+        </UButton>
+
         <UDropdownMenu
           :items="menuItems"
           :content="{

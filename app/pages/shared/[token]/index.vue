@@ -3,8 +3,8 @@ import type { SortableSongColumn } from '~~/shared/schema/song'
 
 import LayoutMain from '~/pages/_partial/LayoutMain.vue'
 
-const route = useRoute()
-const token = computed(() => route.params.token as string)
+const route = useRoute('shared-token')
+const token = computed(() => route.params.token)
 
 const { isLoaded, isSignedIn } = useAuth()
 const isLoggedIn = computed(() => isLoaded.value && isSignedIn.value)

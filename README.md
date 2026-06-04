@@ -23,7 +23,16 @@ Start the development server on `http://localhost:3000`:
 pnpm dev
 ```
 
-## Production
+## Tools
+
+- drizzle-kit (`pn drizzle-kit <command>`)
+- sql-studio (standalone install)
+
+```bash
+sql-studio sqlite ./songbook.db
+```
+
+# Build production
 
 Build the application for production (SPA mode):
 

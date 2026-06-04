@@ -10,7 +10,7 @@ useHead({
   },
 })
 
-const route = useRoute()
+const route = useRoute('index')
 
 const itemsSection = [
   [

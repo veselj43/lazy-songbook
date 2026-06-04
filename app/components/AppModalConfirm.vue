@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { ButtonProps } from '@nuxt/ui'
 
+import { tcf } from '~/lib/tailwind'
+
 withDefaults(
   defineProps<{
     title?: string
@@ -51,17 +53,18 @@ defineExpose({
     :close="{ onClick: () => close(false) }"
     :title="title"
     :description="description"
+    :ui="{
+      footer: tcf('justify-end'),
+    }"
   >
     <template v-if="$slots.body" #body>
       <slot name="body" />
     </template>
 
     <template #footer>
-      <div class="flex gap-2">
-        <UButton variant="soft" color="neutral" @click="close(false)">Cancel</UButton>
+      <UButton variant="ghost" color="neutral" @click="close(false)">Cancel</UButton>
 
-        <UButton variant="soft" :color="confirmColor" @click="close(true)">OK</UButton>
-      </div>
+      <UButton variant="soft" :color="confirmColor" @click="close(true)">OK</UButton>
     </template>
   </UModal>
 </template>

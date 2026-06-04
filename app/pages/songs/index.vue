@@ -20,7 +20,10 @@ const { data, status: fetchStatus } = useFetchSongs(() => ({
   search: search.value,
 }))
 
-const shareModalOpen = ref(false)
+const shareStore = useShareStore()
+const { shareData } = storeToRefs(shareStore)
+
+const shareModal = useTemplateRef('share-modal')
 </script>
 
 <template>
@@ -30,18 +33,19 @@ const shareModalOpen = ref(false)
 
       <template #right>
         <UButton
-          color="neutral"
-          variant="outline"
+          :color="shareData ? 'primary' : 'neutral'"
+          :variant="shareData ? 'subtle' : 'outline'"
           icon="i-lucide-share-2"
-          @click="shareModalOpen = true"
+          @click="shareModal?.open()"
         >
           Share
         </UButton>
+
         <UButton to="/songs/new" icon="i-lucide-plus"> Add song </UButton>
       </template>
     </AppHeader>
 
-    <ShareLibraryModal v-model:open="shareModalOpen" />
+    <ShareLibraryModal ref="share-modal" />
 
     <SongFilters
       v-model:search="search"

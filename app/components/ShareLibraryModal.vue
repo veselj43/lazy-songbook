@@ -2,25 +2,20 @@
 import { useClipboard } from '@vueuse/core'
 import { useQRCode } from '@vueuse/integrations/useQRCode'
 
-const open = defineModel<boolean>('open', { default: false })
+import { useShareStore } from '~/composables/share.store'
 
-const { data: share, status, refresh } = useFetchOwnerShare()
+const shareStore = useShareStore()
+const { shareUrl, shareData, shareStatus } = storeToRefs(shareStore)
 
 const { copy, copied } = useClipboard()
 
-const runtimeConfig = useRuntimeConfig()
-
-const shareUrl = computed(() => {
-  if (!share.value) return ''
-  const base = runtimeConfig.public.appUrl || (import.meta.client ? window.location.origin : '')
-  return `${base}/shared/${share.value.token}`
+const qrData = computed(() => {
+  return shareUrl.value ? useQRCode(shareUrl.value) : undefined
 })
-
-const qrData = useQRCode(shareUrl)
 
 const { execute: handleCreate, status: createStatus } = useAsyncAction(async () => {
   await createOwnerShareHandler()
-  await refresh()
+  await shareStore.shareRefresh()
 })
 
 const { confirm } = useConfirm()
@@ -34,24 +29,44 @@ const { execute: handleRevoke, status: revokeStatus } = useAsyncAction(async () 
   if (!confirmed) return
 
   await revokeOwnerShareHandler()
-  await refresh()
+  await shareStore.shareRefresh()
 })
 
 const handleCopy = () => {
   if (!shareUrl.value) return
   copy(shareUrl.value)
 }
+
+const isOpen = ref(false)
+
+const emit = defineEmits<{
+  close: []
+}>()
+
+const open = () => {
+  isOpen.value = true
+}
+
+const close = () => {
+  isOpen.value = false
+  emit('close')
+}
+
+defineExpose({
+  open,
+  close,
+})
 </script>
 
 <template>
   <UModal
-    v-model:open="open"
+    v-model:open="isOpen"
     title="Share your library"
     description="Anyone with this link can view your songs. They don't need an account."
   >
     <template #body>
-      <AsyncContent :fetchStatus="status">
-        <template v-if="share">
+      <AsyncContent :fetchStatus="shareStatus">
+        <template v-if="shareData">
           <div class="flex flex-col gap-3">
             <UFieldGroup>
               <UInput :model-value="shareUrl" readonly class="w-full font-mono" />
@@ -65,11 +80,9 @@ const handleCopy = () => {
               />
             </UFieldGroup>
 
-            <img :src="qrData" alt=" " />
+            <img v-if="qrData" :src="qrData.value" alt=" " />
 
-            <p class="text-sm text-gray-500">
-              Created {{ new Date(share.createdAt).toLocaleString() }}.
-            </p>
+            <p class="text-sm text-gray-500">Created <DateTime :value="shareData.createdAt" /></p>
           </div>
         </template>
 
@@ -84,7 +97,7 @@ const handleCopy = () => {
     <template #footer>
       <div class="flex w-full justify-end gap-2">
         <UButton
-          v-if="share"
+          v-if="shareData"
           color="error"
           variant="soft"
           icon="i-lucide-link-2-off"
@@ -100,7 +113,6 @@ const handleCopy = () => {
           @click="handleCreate"
           >Create share link</UButton
         >
-        <UButton variant="ghost" color="neutral" @click="open = false">Close</UButton>
       </div>
     </template>
   </UModal>
