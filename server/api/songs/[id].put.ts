@@ -1,8 +1,10 @@
 import { updateSongSchema } from '~~/shared/schema/song'
 
 import { songService } from '../../modules/songs/song.service'
+import { requireUserId } from '../../utils/auth'
 
 export default defineEventHandler(async (event) => {
+  const userId = requireUserId(event)
   const id = getRouterParam(event, 'id')!
 
   const body = await readBody(event)
@@ -17,6 +19,7 @@ export default defineEventHandler(async (event) => {
   const song = songService.update({
     id,
     input: bodyResult.data,
+    userId,
   })
 
   if (!song) {

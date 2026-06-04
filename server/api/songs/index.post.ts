@@ -1,8 +1,10 @@
 import { createSongSchema } from '~~/shared/schema/song'
 
 import { songService } from '../../modules/songs/song.service'
+import { requireUserId } from '../../utils/auth'
 
 export default defineEventHandler(async (event) => {
+  const userId = requireUserId(event)
   const body = await readBody(event)
 
   const parsed = createSongSchema.safeParse(body)
@@ -10,5 +12,5 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: parsed.error.issues[0]?.message })
   }
 
-  return songService.create({ input: parsed.data })
+  return songService.create({ input: parsed.data, userId })
 })

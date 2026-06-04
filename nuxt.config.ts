@@ -52,6 +52,16 @@ export default defineNuxtConfig({
     },
   },
 
+  vite: {
+    optimizeDeps: {
+      include: [
+        //
+        '@vueuse/core',
+        'tailwind-variants',
+      ],
+    },
+  },
+
   ui: {
     colorMode: false,
   },

@@ -3,6 +3,10 @@ import type { CreateSongInput } from '~~/shared/schema/song'
 
 import LayoutMain from '../_partial/LayoutMain.vue'
 
+definePageMeta({
+  middleware: 'auth-required',
+})
+
 useHead({ title: 'New song' })
 
 const { execute, status } = useAsyncAction(async (data: CreateSongInput) => {

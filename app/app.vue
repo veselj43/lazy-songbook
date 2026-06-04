@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui'
+import { createReusableTemplate } from '@vueuse/core'
 
 import { tcf } from './lib/tailwind'
 
@@ -8,6 +9,8 @@ useHead({
     return pageName ? `LazySongbook | ${pageName}` : 'LazySongbook'
   },
 })
+
+const route = useRoute()
 
 const itemsSection = [
   [
@@ -39,13 +42,51 @@ const itemsAll = ref<NavigationMenuItem[][]>([
   itemsSection[0],
   itemsGlobal[0],
 ])
+
+const signInRedirectUrl = computed(() => {
+  if (route.query.redirect_url) {
+    return route.query.redirect_url
+  }
+
+  return route.fullPath
+})
+
+const [DefineAuthButtonsTemplate, ReuseAuthButtonsTemplate] = createReusableTemplate()
 </script>
 
 <template>
+  <DefineAuthButtonsTemplate>
+    <UButton
+      color="neutral"
+      variant="ghost"
+      size="sm"
+      :to="{
+        path: '/sign-in',
+        query: {
+          redirect_url: signInRedirectUrl,
+        },
+      }"
+      >Sign in</UButton
+    >
+
+    <UButton
+      size="sm"
+      :to="{
+        path: '/sign-up',
+        query: {
+          redirect_url: signInRedirectUrl,
+        },
+      }"
+      >Sign up</UButton
+    >
+  </DefineAuthButtonsTemplate>
+
   <UApp>
     <UHeader
       :ui="{
         left: tcf('lg:grow-0'),
+        center: tcf('grow'),
+        right: tcf('lg:grow-0'),
       }"
     >
       <template #title>
@@ -53,14 +94,37 @@ const itemsAll = ref<NavigationMenuItem[][]>([
       </template>
 
       <template #default>
-        <div class="flex grow justify-between">
-          <UNavigationMenu :items="itemsLeft" />
-          <UNavigationMenu :items="itemsRight" />
-        </div>
+        <Show when="signed-out">
+          <div class="flex grow items-center justify-end gap-2">
+            <ReuseAuthButtonsTemplate />
+          </div>
+        </Show>
+
+        <Show when="signed-in">
+          <div class="flex grow items-center justify-between gap-4">
+            <UNavigationMenu :items="itemsLeft" />
+
+            <UNavigationMenu :items="itemsRight" />
+          </div>
+        </Show>
+      </template>
+
+      <template #right>
+        <Show when="signed-in">
+          <UserButton />
+        </Show>
       </template>
 
       <template #body>
-        <UNavigationMenu :items="itemsAll" orientation="vertical" class="-mx-2.5" />
+        <div class="flex flex-col gap-4">
+          <Show when="signed-out">
+            <div class="flex gap-2 self-end">
+              <ReuseAuthButtonsTemplate />
+            </div>
+          </Show>
+
+          <UNavigationMenu :items="itemsAll" orientation="vertical" class="-mx-2.5" />
+        </div>
       </template>
     </UHeader>
 
