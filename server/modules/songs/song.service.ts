@@ -4,10 +4,8 @@ import type { CreateSongInput, SongSort, UpdateSongInput } from '~~/shared/schem
 import { db } from '../../db'
 import { songs } from './db/schema'
 
-const DEFAULT_USER_ID = 'default-user'
-
 interface UserScope {
-  userId?: string
+  userId: string
 }
 
 interface FilterParams extends UserScope {
@@ -35,7 +33,7 @@ interface DeleteParams extends UserScope {
 }
 
 export const songService = {
-  filter({ userId = DEFAULT_USER_ID, page, pageSize, sort, search }: FilterParams) {
+  filter({ userId, page, pageSize, sort, search }: FilterParams) {
     const conditions: SQL[] = [eq(songs.userId, userId)]
     const trimmedSearch = search?.trim()
     if (trimmedSearch) {
@@ -81,7 +79,7 @@ export const songService = {
     }
   },
 
-  getById({ id, userId = DEFAULT_USER_ID }: GetByIdParams) {
+  getById({ id, userId }: GetByIdParams) {
     const result = db
       .select()
       .from(songs)
@@ -90,7 +88,7 @@ export const songService = {
     return result[0]
   },
 
-  create({ input, userId = DEFAULT_USER_ID }: CreateParams) {
+  create({ input, userId }: CreateParams) {
     const now = new Date().toISOString()
     const result = db
       .insert(songs)
@@ -105,7 +103,7 @@ export const songService = {
     return result[0]!
   },
 
-  update({ id, input, userId = DEFAULT_USER_ID }: UpdateParams) {
+  update({ id, input, userId }: UpdateParams) {
     const result = db
       .update(songs)
       .set({ ...input, updatedAt: new Date().toISOString() })
@@ -115,7 +113,7 @@ export const songService = {
     return result[0]
   },
 
-  delete({ id, userId = DEFAULT_USER_ID }: DeleteParams) {
+  delete({ id, userId }: DeleteParams) {
     const result = db
       .delete(songs)
       .where(and(eq(songs.id, id), eq(songs.userId, userId)))

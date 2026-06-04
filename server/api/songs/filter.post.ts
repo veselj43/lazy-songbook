@@ -3,6 +3,7 @@ import { paginationSchema } from '~~/shared/schema/api'
 import { songSortSchema } from '~~/shared/schema/song'
 
 import { songService } from '../../modules/songs/song.service'
+import { requireUserId } from '../../utils/auth'
 
 const songListBodySchema = paginationSchema.extend({
   sort: songSortSchema.optional(),
@@ -10,6 +11,7 @@ const songListBodySchema = paginationSchema.extend({
 })
 
 export default defineEventHandler(async (event) => {
+  const userId = requireUserId(event)
   const body = await readBody(event)
   const parsed = songListBodySchema.safeParse(body)
   if (!parsed.success) {
@@ -19,5 +21,5 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  return songService.filter(parsed.data)
+  return songService.filter({ ...parsed.data, userId })
 })

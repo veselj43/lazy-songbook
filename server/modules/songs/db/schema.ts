@@ -6,7 +6,7 @@ export const songs = sqliteTable('songs', {
   id: text('id')
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
-  userId: text('user_id').notNull().default('default-user'),
+  userId: text('user_id').notNull(),
   author: text('author', { length: 50 }).notNull(),
   name: text('name', { length: 100 }).notNull(),
   content: text('content', { length: 10_000 }).notNull().default(''),
