@@ -28,6 +28,15 @@ export const revokeOwnerShareHandler = async () => {
   clearNuxtData(ownerShareDataKey)
 }
 
+export const setCurrentSongHandler = async ({ songId }: { songId: string | null }) => {
+  const result = await $fetch<LibraryShare | null>('/api/library/share/current-song', {
+    method: 'PATCH',
+    body: { songId },
+  })
+  clearNuxtData(ownerShareDataKey)
+  return result
+}
+
 const fetchSharedLibraries = (body: SharedLibrariesFilter) =>
   $fetch<SharedLibraryListResponse>('/api/shared/filter', { method: 'POST', body })
 

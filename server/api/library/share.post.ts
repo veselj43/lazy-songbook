@@ -10,6 +10,7 @@ export default defineEventHandler((event): LibraryShare => {
   return {
     id: share.id,
     token: share.token,
+    currentSongId: share.currentSongId,
     createdAt: share.createdAt,
     updatedAt: share.updatedAt,
   }

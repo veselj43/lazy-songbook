@@ -15,6 +15,13 @@
       "when": 1780586358187,
       "tag": "0001_next_randall_flagg",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1780597467576,
+      "tag": "0002_green_mysterio",
+      "breakpoints": true
     }
   ]
 }

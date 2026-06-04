@@ -32,3 +32,5 @@ When the PoC passes expectations, local solutions will be swapped for deployable
 ## Instructions
 
 - Do not run dev server or any processes that run on the background indefinitely
+- Prefer imports with aliases `#server/` or `#shared/` over multiple `../`
+  - These aliases DO work, they are just scoped so `#server` cannot be used in `app` for example

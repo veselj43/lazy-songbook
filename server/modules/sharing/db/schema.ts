@@ -1,6 +1,7 @@
 import { sqliteTable, text, unique } from 'drizzle-orm/sqlite-core'
 
 import { timestamps } from '#server/db/timestamp.helper'
+import { songs } from '#server/modules/songs/db/schema'
 import { MEMBERSHIP_STATUS } from '#shared/schema/sharing'
 
 export const libraryShares = sqliteTable('library_shares', {
@@ -9,6 +10,7 @@ export const libraryShares = sqliteTable('library_shares', {
     .$defaultFn(() => crypto.randomUUID()),
   ownerUserId: text('owner_user_id').notNull().unique(),
   token: text('token').notNull().unique(),
+  currentSongId: text('current_song_id').references(() => songs.id, { onDelete: 'set null' }),
   ...timestamps,
 })
 

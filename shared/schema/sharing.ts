@@ -8,10 +8,16 @@ export const membershipStatusSchema = z.enum(MEMBERSHIP_STATUS)
 export const libraryShareSchema = z.object({
   id: z.string(),
   token: z.string(),
+  currentSongId: z.string().nullable(),
   createdAt: z.string(),
   updatedAt: z.string(),
 })
 export type LibraryShare = z.infer<typeof libraryShareSchema>
+
+export const setCurrentSongSchema = z.object({
+  songId: z.string().nullable(),
+})
+export type SetCurrentSongInput = z.infer<typeof setCurrentSongSchema>
 
 export const updateMembershipSchema = z.object({
   status: membershipStatusSchema,

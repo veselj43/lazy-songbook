@@ -62,6 +62,50 @@ export const sharingService = {
     return rows[0] ?? null
   },
 
+  setCurrentSong({ ownerUserId, songId }: { ownerUserId: string; songId: string | null }) {
+    return db.transaction((tx) => {
+      if (songId === null) {
+        const updated = tx
+          .update(libraryShares)
+          .set({ currentSongId: null, updatedAt: new Date().toISOString() })
+          .where(eq(libraryShares.ownerUserId, ownerUserId))
+          .returning()
+          .all()
+
+        return updated[0] ?? null
+      }
+
+      const existing = tx
+        .select()
+        .from(libraryShares)
+        .where(eq(libraryShares.ownerUserId, ownerUserId))
+        .all()
+
+      if (!existing[0]) {
+        const inserted = tx
+          .insert(libraryShares)
+          .values({
+            ownerUserId,
+            token: generateToken(),
+            currentSongId: songId,
+          })
+          .returning()
+          .all()
+
+        return inserted[0]!
+      }
+
+      const updated = tx
+        .update(libraryShares)
+        .set({ currentSongId: songId, updatedAt: new Date().toISOString() })
+        .where(eq(libraryShares.id, existing[0].id))
+        .returning()
+        .all()
+
+      return updated[0]!
+    })
+  },
+
   upsertMembership({
     viewerUserId,
     libraryShareId,
