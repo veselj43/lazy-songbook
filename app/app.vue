@@ -46,6 +46,8 @@ const itemsAll = ref<NavigationMenuItem[][]>([
     <UHeader
       :ui="{
         left: tcf('lg:grow-0'),
+        center: tcf('grow'),
+        right: tcf('lg:grow-0'),
       }"
     >
       <template #title>
@@ -53,14 +55,51 @@ const itemsAll = ref<NavigationMenuItem[][]>([
       </template>
 
       <template #default>
-        <div class="flex grow justify-between">
+        <div class="flex grow items-center justify-between gap-4">
           <UNavigationMenu :items="itemsLeft" />
-          <UNavigationMenu :items="itemsRight" />
+          <div class="flex items-center gap-3">
+            <UNavigationMenu :items="itemsRight" />
+
+            <Show when="signed-out">
+              <div class="flex items-center gap-2">
+                <SignInButton mode="modal">
+                  <UButton label="Sign in" color="neutral" variant="ghost" size="sm" />
+                </SignInButton>
+                <SignUpButton mode="modal">
+                  <UButton label="Sign up" size="sm" />
+                </SignUpButton>
+              </div>
+            </Show>
+          </div>
         </div>
       </template>
 
+      <template #right>
+        <Show when="signed-in">
+          <UserButton />
+        </Show>
+      </template>
+
       <template #body>
-        <UNavigationMenu :items="itemsAll" orientation="vertical" class="-mx-2.5" />
+        <div class="flex flex-col gap-4">
+          <UNavigationMenu :items="itemsAll" orientation="vertical" class="-mx-2.5" />
+
+          <Show when="signed-out">
+            <div class="flex gap-2">
+              <SignInButton mode="modal">
+                <UButton
+                  label="Sign in"
+                  color="neutral"
+                  variant="ghost"
+                  class="flex-1 justify-center"
+                />
+              </SignInButton>
+              <SignUpButton mode="modal">
+                <UButton label="Sign up" class="flex-1 justify-center" />
+              </SignUpButton>
+            </div>
+          </Show>
+        </div>
       </template>
     </UHeader>
 
