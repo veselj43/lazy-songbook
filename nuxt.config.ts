@@ -56,7 +56,9 @@ export default defineNuxtConfig({
     optimizeDeps: {
       include: [
         //
+        '@clerk/vue',
         '@vueuse/core',
+        '@vueuse/integrations',
         'tailwind-variants',
       ],
     },
@@ -67,6 +69,8 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
-    public: {},
+    public: {
+      appUrl: '',
+    },
   },
 })
