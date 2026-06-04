@@ -3,6 +3,10 @@ import type { DropdownMenuItem } from '@nuxt/ui'
 
 import LayoutMain from '~/pages/_partial/LayoutMain.vue'
 
+definePageMeta({
+  middleware: 'auth-required',
+})
+
 const route = useRoute()
 
 const currentId = computed(() => route.params.id as string)

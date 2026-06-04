@@ -19,10 +19,9 @@ const fetchSongs = (body: FetchSongsBody = {}) =>
 export const songsDataKey = 'songs'
 
 export const useFetchSongs = (body?: MaybeRefOrGetter<FetchSongsBody>) => {
-  const { isSignedIn } = useAuth()
   const bodyRef = computed<FetchSongsBody>(() => toValue(body) ?? {})
   return useAsyncData(songsDataKey, () => fetchSongs(bodyRef.value), {
-    watch: [bodyRef, isSignedIn],
+    watch: [bodyRef],
   })
 }
 
@@ -30,12 +29,8 @@ const fetchSong = ({ id }: { id: string }) => $fetch<Song>(`/api/songs/${id}`)
 
 export const songDataKey = ({ id }: { id: string }) => `songs-${id}`
 
-export const useFetchSong = ({ id }: { id: string }) => {
-  const { isSignedIn } = useAuth()
-  return useAsyncData(songDataKey({ id }), () => fetchSong({ id }), {
-    watch: [isSignedIn],
-  })
-}
+export const useFetchSong = ({ id }: { id: string }) =>
+  useAsyncData(songDataKey({ id }), () => fetchSong({ id }))
 
 const createSong = ({ data }: { data: CreateSongInput }) =>
   $fetch<Song>('/api/songs', { method: 'POST', body: data })

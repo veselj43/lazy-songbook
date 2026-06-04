@@ -3,6 +3,10 @@ import type { SortableSongColumn } from '~~/shared/schema/song'
 
 import LayoutMain from '../_partial/LayoutMain.vue'
 
+definePageMeta({
+  middleware: 'auth-required',
+})
+
 useHead({
   title: 'Songs',
 })
