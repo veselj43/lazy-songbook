@@ -1,19 +1,38 @@
-import type { CreateSongInput, Song, SongListResponse, UpdateSongInput } from '~~/shared/types/song'
+import type {
+  CreateSongInput,
+  Song,
+  SongListResponse,
+  SongSort,
+  UpdateSongInput,
+} from '~~/shared/schema/song'
 
-export const fetchSongs = () => $fetch<SongListResponse>('/api/songs')
+interface FetchSongsBody {
+  page?: number
+  pageSize?: number
+  sort?: SongSort
+  search?: string
+}
+
+const fetchSongs = (body: FetchSongsBody = {}) =>
+  $fetch<SongListResponse>('/api/songs/filter', { method: 'POST', body })
 
 export const songsDataKey = 'songs'
 
-export const useFetchSongs = () => useAsyncData(songsDataKey, () => fetchSongs())
+export const useFetchSongs = (body?: MaybeRefOrGetter<FetchSongsBody>) => {
+  const bodyRef = computed<FetchSongsBody>(() => toValue(body) ?? {})
+  return useAsyncData(songsDataKey, () => fetchSongs(bodyRef.value), {
+    watch: [bodyRef],
+  })
+}
 
-export const fetchSong = ({ id }: { id: string }) => $fetch<Song>(`/api/songs/${id}`)
+const fetchSong = ({ id }: { id: string }) => $fetch<Song>(`/api/songs/${id}`)
 
-const songDataKey = ({ id }: { id: string }) => `songs-${id}`
+export const songDataKey = ({ id }: { id: string }) => `songs-${id}`
 
 export const useFetchSong = ({ id }: { id: string }) =>
   useAsyncData(songDataKey({ id }), () => fetchSong({ id }))
 
-export const createSong = ({ data }: { data: CreateSongInput }) =>
+const createSong = ({ data }: { data: CreateSongInput }) =>
   $fetch<Song>('/api/songs', { method: 'POST', body: data })
 
 export const createSongHandler = async ({ data }: { data: CreateSongInput }) => {
@@ -22,7 +41,7 @@ export const createSongHandler = async ({ data }: { data: CreateSongInput }) => 
   return result
 }
 
-export const updateSong = ({ id, data }: { id: string; data: UpdateSongInput }) =>
+const updateSong = ({ id, data }: { id: string; data: UpdateSongInput }) =>
   $fetch<Song>(`/api/songs/${id}`, { method: 'PUT', body: data })
 
 export const updateSongHandler = async ({ id, data }: { id: string; data: UpdateSongInput }) => {
@@ -31,20 +50,17 @@ export const updateSongHandler = async ({ id, data }: { id: string; data: Update
   return result
 }
 
-export const deleteSong = ({ id }: { id: string }) =>
+const deleteSong = ({ id }: { id: string }) =>
   $fetch<Song>(`/api/songs/${id}`, { method: 'DELETE' })
 
 export const deleteSongHandler = async ({
-  confirm,
+  confirmHandler,
   song,
 }: {
-  confirm: ModalConfirmHandler
+  confirmHandler: () => Promise<boolean>
   song: Song
 }) => {
-  const result = await confirm({
-    title: 'Delete song?',
-    description: `${song.name} by ${song.author}`,
-  })
+  const result = await confirmHandler()
   if (!result) return false
 
   await deleteSong({ id: song.id })

@@ -23,9 +23,29 @@ export const updateSongSchema = z.object({
 })
 
 export type Song = z.infer<typeof songSchema>
+export type SongListItem = Omit<Song, 'content'>
 export type CreateSongInput = z.infer<typeof createSongSchema>
 export type UpdateSongInput = z.infer<typeof updateSongSchema>
 
+export const SORTABLE_SONG_COLUMNS = [
+  'author',
+  'name',
+  'createdAt',
+  'updatedAt',
+] as const satisfies (keyof Song)[]
+export type SortableSongColumn = (typeof SORTABLE_SONG_COLUMNS)[number]
+
+export const songSortItemSchema = z.object({
+  column: z.enum(SORTABLE_SONG_COLUMNS),
+  isDesc: z.boolean(),
+})
+export const songSortSchema = z.array(songSortItemSchema)
+
+export type SongSortItem = z.infer<typeof songSortItemSchema>
+export type SongSort = z.infer<typeof songSortSchema>
+
 export interface SongListResponse {
-  items: Song[]
+  items: SongListItem[]
+  page: number
+  pageSize: number
 }

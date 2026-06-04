@@ -16,11 +16,13 @@ Primary use-case is for playing on guitar and singing.
 
 ## Technical idea
 
-Goal is to make function PoC locally.
+Goal is to make functional PoC locally.
 
-When the PoC will pass expectations, local solutions will be swapped for deployable and maintainable ones.
+When the PoC passes expectations, local solutions will be swapped for deployable and maintainable ones.
 
 - UI is in Vue/Nuxt
+  - viewing is responsible, mobile-friendly
+  - editing is meant for desktop, but still usable on mobile
 - API is in Nuxt/H3
   - CRUD operations for users
   - later also sharing

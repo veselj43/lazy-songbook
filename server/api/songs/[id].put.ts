@@ -1,4 +1,4 @@
-import { updateSongSchema } from '~~/shared/types/song'
+import { updateSongSchema } from '~~/shared/schema/song'
 
 import { songService } from '../../modules/songs/song.service'
 
@@ -6,14 +6,24 @@ export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id')!
 
   const body = await readBody(event)
-  const parsed = updateSongSchema.safeParse(body)
-  if (!parsed.success) {
-    throw createError({ statusCode: 400, statusMessage: parsed.error.issues[0]?.message })
+  const bodyResult = updateSongSchema.safeParse(body)
+  if (!bodyResult.success) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: bodyResult.error.issues[0]?.message,
+    })
   }
 
-  const song = songService.update(id, parsed.data)
+  const song = songService.update({
+    id,
+    input: bodyResult.data,
+  })
+
   if (!song) {
-    throw createError({ statusCode: 404, statusMessage: 'Song not found' })
+    throw createError({
+      statusCode: 404,
+      statusMessage: 'Song not found',
+    })
   }
 
   return song

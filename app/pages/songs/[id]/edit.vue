@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { CreateSongInput } from '~~/shared/types/song'
+import type { CreateSongInput } from '~~/shared/schema/song'
 
 import LayoutMain from '~/pages/_partial/LayoutMain.vue'
 
@@ -21,15 +21,28 @@ const { execute, status: submitStatus } = useAsyncAction(async (data: CreateSong
 
 <template>
   <LayoutMain>
-    <AppHeader>Edit song</AppHeader>
+    <AppHeader>
+      <template #default> Edit song </template>
 
-    <div v-if="fetchStatus === 'pending'" class="py-12 text-center text-gray-500">Loading...</div>
+      <template #right>
+        <div v-if="song" class="flex flex-col items-end">
+          <p class="text-xs text-muted tabular-nums">
+            Created: <DateTime :value="song.createdAt" />
+          </p>
+          <p class="text-xs text-muted tabular-nums">
+            Updated: <DateTime :value="song.updatedAt" />
+          </p>
+        </div>
+      </template>
+    </AppHeader>
 
-    <SongForm
-      v-else-if="song"
-      :initial-values="{ author: song.author, name: song.name, content: song.content }"
-      :loading="submitStatus === 'pending'"
-      @submit="execute"
-    />
+    <AsyncContent :fetchStatus="fetchStatus">
+      <SongForm
+        v-if="song"
+        :initialValues="{ author: song.author, name: song.name, content: song.content }"
+        :loading="submitStatus === 'pending'"
+        @submit="execute"
+      />
+    </AsyncContent>
   </LayoutMain>
 </template>

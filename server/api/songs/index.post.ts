@@ -1,4 +1,4 @@
-import { createSongSchema } from '~~/shared/types/song'
+import { createSongSchema } from '~~/shared/schema/song'
 
 import { songService } from '../../modules/songs/song.service'
 
@@ -10,5 +10,5 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: parsed.error.issues[0]?.message })
   }
 
-  return songService.create(parsed.data)
+  return songService.create({ input: parsed.data })
 })

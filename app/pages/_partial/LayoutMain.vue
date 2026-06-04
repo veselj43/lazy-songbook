@@ -1,19 +1,13 @@
 <script setup lang="ts">
 import { tv, type VariantProps } from 'tailwind-variants'
 
-import AppSidebar from '~/components/AppSidebar.vue'
+import { tvCn } from '~/lib/tailwind'
 
 const tvLayout = tv({
   slots: {
-    pageWrapper: 'h-full w-full px-5 pt-3 pb-8',
-    page: 'h-full',
+    page: 'px-2',
   },
   variants: {
-    scrollable: {
-      true: {
-        pageWrapper: 'overflow-y-auto',
-      },
-    },
     width: {
       narrow: {
         page: 'm-auto w-full xl:max-w-6xl',
@@ -29,8 +23,10 @@ type TvProps = VariantProps<typeof tvLayout>
 
 const props = withDefaults(
   defineProps<{
-    scrollable?: TvProps['scrollable']
     width?: TvProps['width']
+    ui?: {
+      page?: string
+    }
   }>(),
   {
     scrollable: false,
@@ -38,21 +34,11 @@ const props = withDefaults(
   },
 )
 
-const styles = computed(() => tvLayout(props))
+const styles = computed(() => tvLayout({ width: props.width }))
 </script>
 
 <template>
-  <div class="flex h-screen flex-col">
-    <div class="flex min-h-0 grow">
-      <div class="relative h-full w-48 shrink-0">
-        <AppSidebar class="w-full overflow-y-auto" />
-      </div>
-
-      <div :class="styles.pageWrapper()">
-        <div :class="styles.page()">
-          <slot />
-        </div>
-      </div>
-    </div>
+  <div :class="tvCn(styles.page(), props.ui?.page)">
+    <slot />
   </div>
 </template>
