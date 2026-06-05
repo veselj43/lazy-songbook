@@ -9,6 +9,7 @@ import { optionalUserId } from '#server/utils/auth'
 import { resolveOwnerDisplayName } from '#server/utils/ownerDisplayName'
 import { rateLimit } from '#server/utils/rateLimit'
 
+// TODO move to shared
 const shareSongListBodySchema = paginationSchema.extend({
   sort: songSortSchema.optional(),
   search: z.string().min(2).max(100).optional(),
@@ -46,7 +47,7 @@ export default defineEventHandler(async (event): Promise<ShareLibraryResponse> =
   })
 
   return {
-    ownerName: ownerDisplayName,
+    ownerDisplayName: ownerDisplayName,
     items,
     page,
     pageSize,

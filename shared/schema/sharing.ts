@@ -29,6 +29,17 @@ export const sharedLibrariesFilterSchema = z.object({
 })
 export type SharedLibrariesFilter = z.infer<typeof sharedLibrariesFilterSchema>
 
+export interface ShareLibraryStatusResponse {
+  id: string
+  createdAt: string
+  currentSongId: string | null
+  currentSongAuthor: string | null
+  currentSongName: string | null
+  ownerUserId: string
+  token: string
+  updatedAt: string
+}
+
 export interface SharedLibraryListItem {
   id: string
   token: string
@@ -51,7 +62,7 @@ export interface ShareSongListItem {
 }
 
 export interface ShareLibraryResponse {
-  ownerName: string | null
+  ownerDisplayName: string | null
   items: ShareSongListItem[]
   page: number
   pageSize: number

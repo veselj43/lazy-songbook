@@ -1,7 +1,7 @@
 import { updateMembershipSchema } from '~~/shared/schema/sharing'
 
-import { sharingService } from '../../modules/sharing/sharing.service'
-import { requireUserId } from '../../utils/auth'
+import { sharingService } from '#server/modules/sharing/sharing.service'
+import { requireUserId } from '#server/utils/auth'
 
 export default defineEventHandler(async (event) => {
   const userId = requireUserId(event)

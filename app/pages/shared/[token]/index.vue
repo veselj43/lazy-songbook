@@ -14,10 +14,10 @@ const sortDesc = ref(true)
 const search = ref<string | undefined>(undefined)
 
 const {
-  data,
+  data: sharedLibraryData,
   status: fetchStatus,
   error,
-} = useFetchShareLibrary({
+} = useFetchSharedLibrary({
   token: token.value,
   body: () => ({
     sort: [{ column: sortColumn.value, isDesc: sortDesc.value }],
@@ -26,7 +26,10 @@ const {
 })
 
 useHead({
-  title: () => (data.value?.ownerName ? `${data.value.ownerName}'s library` : 'Shared library'),
+  title: () =>
+    sharedLibraryData.value?.ownerDisplayName
+      ? `${sharedLibraryData.value.ownerDisplayName}'s library`
+      : 'Shared library',
 })
 </script>
 
@@ -34,9 +37,13 @@ useHead({
   <LayoutMain>
     <AppHeader>
       <template #default>
-        <div v-if="data">
+        <div v-if="sharedLibraryData">
           <h1 class="text-2xl font-bold">
-            {{ data.ownerName ? `${data.ownerName}'s library` : 'Shared library' }}
+            {{
+              sharedLibraryData.ownerDisplayName
+                ? `${sharedLibraryData.ownerDisplayName}'s library`
+                : 'Shared library'
+            }}
           </h1>
           <p class="text-sm text-gray-500">Read-only</p>
         </div>
@@ -80,13 +87,13 @@ useHead({
         class="mb-4"
       />
 
-      <div v-if="!data?.items.length" class="py-12 text-center text-gray-500">
+      <div v-if="!sharedLibraryData?.items.length" class="py-12 text-center text-gray-500">
         This library is empty.
       </div>
 
       <div v-else class="flex flex-col gap-3">
         <SongListItem
-          v-for="song in data.items"
+          v-for="song in sharedLibraryData.items"
           :song="song"
           :link="(song) => `/shared/${token}/songs/${song.id}/view`"
         />

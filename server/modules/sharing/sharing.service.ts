@@ -3,7 +3,9 @@ import { randomBytes } from 'node:crypto'
 import { and, desc, eq } from 'drizzle-orm'
 import type { MembershipStatus, SharedLibraryListItem } from '~~/shared/schema/sharing'
 
-import { db } from '../../db'
+import { db } from '#server/db'
+import { songs } from '#server/modules/songs/db/schema'
+
 import { libraryMemberships, libraryShares } from './db/schema'
 
 const TOKEN_BYTES = 9 // → 12 chars base64url, ~72 bits of entropy
@@ -58,6 +60,27 @@ export const sharingService = {
 
   resolveShareByToken({ token }: { token: string }) {
     const rows = db.select().from(libraryShares).where(eq(libraryShares.token, token)).all()
+
+    return rows[0] ?? null
+  },
+
+  resolveShareStatusByToken({ token }: { token: string }) {
+    const rows = db
+      .select({
+        id: libraryShares.id,
+        createdAt: libraryShares.createdAt,
+        currentSongId: libraryShares.currentSongId,
+        currentSongAuthor: songs.author,
+        currentSongName: songs.name,
+        ownerUserId: libraryShares.ownerUserId,
+        token: libraryShares.token,
+        updatedAt: libraryShares.updatedAt,
+
+      })
+      .from(libraryShares)
+      .where(eq(libraryShares.token, token))
+      .rightJoin(songs, eq(libraryShares.currentSongId, songs.id))
+      .all()
 
     return rows[0] ?? null
   },
@@ -174,7 +197,7 @@ export const sharingService = {
       .select({
         id: libraryMemberships.id,
         token: libraryShares.token,
-        ownerDisplayName: libraryMemberships.ownerDisplayName,
+        ownerDisplayName: libraryMemberships.ownerDisplayName, // TODO move to library shares and join from there
         status: libraryMemberships.status,
         createdAt: libraryMemberships.createdAt,
         updatedAt: libraryMemberships.updatedAt,

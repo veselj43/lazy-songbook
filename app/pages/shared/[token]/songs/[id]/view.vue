@@ -5,7 +5,7 @@ const route = useRoute('shared-token-songs-id-view')
 const token = computed(() => route.params.token)
 const id = computed(() => route.params.id)
 
-const { data: song, status: fetchStatus } = useFetchShareSong({
+const { data: song, status: fetchStatus } = useFetchSharedSong({
   token: token.value,
   id: id.value,
 })

@@ -12,12 +12,18 @@ export default defineEventHandler((event): ShareSongResponse => {
 
   const share = sharingService.resolveShareByToken({ token })
   if (!share) {
-    throw createError({ statusCode: 404, statusMessage: 'Share not found' })
+    throw createError({
+      statusCode: 404,
+      statusMessage: 'Share not found',
+    })
   }
 
   const song = songService.getByIdForOwner({ id, ownerUserId: share.ownerUserId })
   if (!song) {
-    throw createError({ statusCode: 404, statusMessage: 'Song not found' })
+    throw createError({
+      statusCode: 404,
+      statusMessage: 'Song not found',
+    })
   }
 
   return {

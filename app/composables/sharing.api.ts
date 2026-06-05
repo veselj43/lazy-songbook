@@ -2,6 +2,7 @@ import type {
   LibraryShare,
   MembershipStatus,
   ShareLibraryResponse,
+  ShareLibraryStatusResponse,
   ShareSongResponse,
   SharedLibrariesFilter,
   SharedLibraryListResponse,
@@ -10,8 +11,10 @@ import type { SongSort } from '~~/shared/schema/song'
 
 export const ownerShareDataKey = 'owner-share'
 export const sharedLibrariesDataKey = 'shared-libraries'
-export const shareDataKey = (token: string) => `share-${token}`
-export const shareSongDataKey = (token: string, id: string) => `share-${token}-songs-${id}`
+export const sharedDataKey = ({ token }: { token: string }) => `share-${token}`
+export const sharedStatusKey = ({ token }: { token: string }) => `share-${token}-status`
+export const sharedSongDataKey = ({ id, token }: { id: string; token: string }) =>
+  `share-${token}-songs-${id}`
 
 const fetchOwnerShare = () => $fetch<LibraryShare | null>('/api/library/share')
 
@@ -72,13 +75,21 @@ interface ShareLibraryFetchBody {
   search?: string
 }
 
-const fetchShareLibrary = ({ token, body }: { token: string; body: ShareLibraryFetchBody }) =>
+const fetchSharedLibraryStatus = ({ token }: { token: string }) =>
+  $fetch<ShareLibraryStatusResponse>(`/api/shared/status/${token}`, {
+    method: 'GET',
+  })
+
+export const useFetchSharedLibraryStatus = ({ token }: { token: string }) =>
+  useAsyncData(sharedStatusKey({ token }), () => fetchSharedLibraryStatus({ token }))
+
+const fetchSharedLibrary = ({ token, body }: { token: string; body: ShareLibraryFetchBody }) =>
   $fetch<ShareLibraryResponse>(`/api/shared/${token}/songs/filter`, {
     method: 'POST',
     body,
   })
 
-export const useFetchShareLibrary = ({
+export const useFetchSharedLibrary = ({
   token,
   body,
 }: {
@@ -87,16 +98,16 @@ export const useFetchShareLibrary = ({
 }) => {
   const bodyRef = computed<ShareLibraryFetchBody>(() => toValue(body) ?? {})
   return useAsyncData(
-    shareDataKey(token),
-    () => fetchShareLibrary({ token, body: bodyRef.value }),
+    sharedDataKey({ token }),
+    () => fetchSharedLibrary({ token, body: bodyRef.value }),
     {
       watch: [bodyRef],
     },
   )
 }
 
-const fetchShareSong = ({ token, id }: { token: string; id: string }) =>
+const fetchSharedSong = ({ id, token }: { token: string; id: string }) =>
   $fetch<ShareSongResponse>(`/api/shared/${token}/songs/${id}`)
 
-export const useFetchShareSong = ({ token, id }: { token: string; id: string }) =>
-  useAsyncData(shareSongDataKey(token, id), () => fetchShareSong({ token, id }))
+export const useFetchSharedSong = ({ id, token }: { id: string; token: string }) =>
+  useAsyncData(sharedSongDataKey({ id, token }), () => fetchSharedSong({ id, token }))
