@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
   }
 
   if (parsed.data.songId !== null) {
-    const owned = songService.getById({ id: parsed.data.songId, userId })
+    const owned = await songService.getById({ id: parsed.data.songId, userId })
     if (!owned) {
       throw createError({
         statusCode: 404,
@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  return sharingService.setCurrentSong({
+  return await sharingService.setCurrentSong({
     ownerUserId: userId,
     songId: parsed.data.songId,
   })

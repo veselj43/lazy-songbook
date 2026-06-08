@@ -4,13 +4,13 @@ import { sharingService } from '#server/modules/sharing/sharing.service'
 import { songService } from '#server/modules/songs/song.service'
 import { rateLimit } from '#server/utils/rateLimit'
 
-export default defineEventHandler((event): ShareSongResponse => {
+export default defineEventHandler(async (event): Promise<ShareSongResponse> => {
   rateLimit(event, { key: 'share-by-token', limit: 30, windowMs: 60_000 })
 
   const token = getRouterParam(event, 'token')!
   const id = getRouterParam(event, 'id')!
 
-  const share = sharingService.resolveShareByToken({ token })
+  const share = await sharingService.resolveShareByToken({ token })
   if (!share) {
     throw createError({
       statusCode: 404,
@@ -18,7 +18,7 @@ export default defineEventHandler((event): ShareSongResponse => {
     })
   }
 
-  const song = songService.getByIdForOwner({ id, ownerUserId: share.ownerUserId })
+  const song = await songService.getByIdForOwner({ id, ownerUserId: share.ownerUserId })
   if (!song) {
     throw createError({
       statusCode: 404,

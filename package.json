@@ -4,13 +4,14 @@
   "type": "module",
   "scripts": {
     "build": "nuxt build",
+    "db:generate": "drizzle-kit generate",
     "dev": "nuxt dev",
-    "generate": "nuxt generate",
-    "preview": "nuxt preview",
-    "postinstall": "nuxt prepare",
-    "db:push": "drizzle-kit push",
-    "fmt": "oxfmt .",
     "fmt:check": "oxfmt --check .",
+    "fmt": "oxfmt .",
+    "generate": "nuxt generate",
+    "postinstall": "nuxt prepare",
+    "preview": "nuxt preview",
+    "start": "node .output/server/index.mjs",
     "test": "vitest"
   },
   "dependencies": {
@@ -20,9 +21,9 @@
     "@pinia/nuxt": "0.11.3",
     "@vueuse/core": "^14.3.0",
     "@vueuse/integrations": "^14.3.0",
-    "better-sqlite3": "^12.10.0",
     "drizzle-orm": "^0.45.2",
     "nuxt": "^4.4.6",
+    "postgres": "^3.4.7",
     "qrcode": "^1.5.4",
     "tailwind-variants": "^3.2.2",
     "tailwindcss": "^4.0.0",
@@ -33,14 +34,8 @@
   },
   "devDependencies": {
     "@iconify-json/lucide": "^1.2.111",
-    "@types/better-sqlite3": "^7.6.13",
     "drizzle-kit": "^0.31.10",
     "oxfmt": "^0.53.0",
     "vitest": "^4.1.8"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "better-sqlite3"
-    ]
   }
 }

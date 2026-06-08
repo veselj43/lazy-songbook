@@ -1,31 +1,33 @@
-import { sqliteTable, text, unique } from 'drizzle-orm/sqlite-core'
+import { pgEnum, pgTable, text, unique, uuid } from 'drizzle-orm/pg-core'
 
-import { timestamps } from '#server/db/timestamp.helper'
-import { songs } from '#server/modules/songs/db/schema'
-import { MEMBERSHIP_STATUS } from '#shared/schema/sharing'
+import { MEMBERSHIP_STATUS } from '../../../../shared/schema/sharing'
+import { timestamps } from '../../../db/timestamp.helper'
+import { songs } from '../../songs/db/schema'
 
-export const libraryShares = sqliteTable('library_shares', {
-  id: text('id')
+export const membershipStatus = pgEnum('membership_status', MEMBERSHIP_STATUS)
+
+export const libraryShares = pgTable('library_shares', {
+  id: uuid('id')
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   ownerUserId: text('owner_user_id').notNull().unique(),
   token: text('token').notNull().unique(),
-  currentSongId: text('current_song_id').references(() => songs.id, { onDelete: 'set null' }),
+  currentSongId: uuid('current_song_id').references(() => songs.id, { onDelete: 'set null' }),
   ...timestamps,
 })
 
-export const libraryMemberships = sqliteTable(
+export const libraryMemberships = pgTable(
   'library_memberships',
   {
-    id: text('id')
+    id: uuid('id')
       .primaryKey()
       .$defaultFn(() => crypto.randomUUID()),
     viewerUserId: text('viewer_user_id').notNull(),
-    libraryShareId: text('library_share_id')
+    libraryShareId: uuid('library_share_id')
       .notNull()
       .references(() => libraryShares.id, { onDelete: 'cascade' }),
     ownerDisplayName: text('owner_display_name'),
-    status: text('status', { enum: MEMBERSHIP_STATUS }).notNull().default('default'),
+    status: membershipStatus('status').notNull().default('default'),
     ...timestamps,
   },
   (t) => [unique('library_memberships_viewer_share_unique').on(t.viewerUserId, t.libraryShareId)],

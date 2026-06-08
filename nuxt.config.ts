@@ -47,12 +47,6 @@ export default defineNuxtConfig({
     },
   },
 
-  nitro: {
-    rollupConfig: {
-      external: ['better-sqlite3'],
-    },
-  },
-
   vite: {
     optimizeDeps: {
       include: [
@@ -75,6 +69,7 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
+    dbConnectionString: '',
     public: {
       appUrl: '',
     },

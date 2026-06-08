@@ -2,8 +2,8 @@ import { z } from 'zod'
 import { paginationSchema } from '~~/shared/schema/api'
 import { songSortSchema } from '~~/shared/schema/song'
 
-import { songService } from '../../modules/songs/song.service'
-import { requireUserId } from '../../utils/auth'
+import { songService } from '#server/modules/songs/song.service'
+import { requireUserId } from '#server/utils/auth'
 
 const songListBodySchema = paginationSchema.extend({
   sort: songSortSchema.optional(),
@@ -21,5 +21,5 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  return songService.filter({ ...parsed.data, userId })
+  return await songService.filter({ ...parsed.data, userId })
 })

@@ -15,7 +15,7 @@ export default defineEventHandler(async (event): Promise<SharedLibraryListRespon
     })
   }
 
-  const items = sharingService.listMembershipsForViewer({
+  const items = await sharingService.listMembershipsForViewer({
     viewerUserId: userId,
     includeDismissed: parsed.data.includeDismissed,
   })

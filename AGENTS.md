@@ -24,9 +24,8 @@ When the PoC passes expectations, local solutions will be swapped for deployable
   - viewing is responsible, mobile-friendly
   - editing is meant for desktop, but still usable on mobile
 - API is in Nuxt/H3
-  - CRUD operations for users
-  - later also sharing
-- DB - sqlite for now
+  - CRUD operations to DB
+- DB - prostgres sql / object storage
   - calls to DB will be separated from the rest of the app in service layer, so DB solution can be swapped later if needed
 
 ## Instructions
