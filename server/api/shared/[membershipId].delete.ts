@@ -1,11 +1,11 @@
 import { sharingService } from '#server/modules/sharing/sharing.service'
 import { requireUserId } from '#server/utils/auth'
 
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
   const userId = requireUserId(event)
   const id = getRouterParam(event, 'membershipId')!
 
-  const result = sharingService.deleteMembership({ id, viewerUserId: userId })
+  const result = await sharingService.deleteMembership({ id, viewerUserId: userId })
   if (!result) {
     throw createError({
       statusCode: 404,

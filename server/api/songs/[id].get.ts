@@ -1,11 +1,11 @@
-import { songService } from '../../modules/songs/song.service'
-import { requireUserId } from '../../utils/auth'
+import { songService } from '#server/modules/songs/song.service'
+import { requireUserId } from '#server/utils/auth'
 
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
   const userId = requireUserId(event)
   const id = getRouterParam(event, 'id')!
 
-  const song = songService.getById({ id, userId })
+  const song = await songService.getById({ id, userId })
   if (!song) {
     throw createError({
       statusCode: 404,

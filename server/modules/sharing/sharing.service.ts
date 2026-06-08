@@ -3,7 +3,7 @@ import { randomBytes } from 'node:crypto'
 import { and, desc, eq } from 'drizzle-orm'
 import type { MembershipStatus, SharedLibraryListItem } from '~~/shared/schema/sharing'
 
-import { db } from '#server/db'
+import { getDb } from '#server/db'
 import { songs } from '#server/modules/songs/db/schema'
 
 import { libraryMemberships, libraryShares } from './db/schema'
@@ -15,57 +15,53 @@ function generateToken(): string {
 }
 
 export const sharingService = {
-  getOwnerShare({ ownerUserId }: { ownerUserId: string }) {
-    const rows = db
+  async getOwnerShare({ ownerUserId }: { ownerUserId: string }) {
+    const rows = await getDb()
       .select()
       .from(libraryShares)
       .where(eq(libraryShares.ownerUserId, ownerUserId))
-      .all()
 
     return rows[0] ?? null
   },
 
-  getOrCreateOwnerShare({ ownerUserId }: { ownerUserId: string }) {
-    return db.transaction((tx) => {
-      const existing = tx
+  async getOrCreateOwnerShare({ ownerUserId }: { ownerUserId: string }) {
+    return await getDb().transaction(async (tx) => {
+      const existing = await tx
         .select()
         .from(libraryShares)
         .where(eq(libraryShares.ownerUserId, ownerUserId))
-        .all()
 
       if (existing[0]) return existing[0]
 
-      const inserted = tx
+      const inserted = await tx
         .insert(libraryShares)
         .values({
           ownerUserId,
           token: generateToken(),
         })
         .returning()
-        .all()
 
       return inserted[0]!
     })
   },
 
-  revokeOwnerShare({ ownerUserId }: { ownerUserId: string }) {
-    const result = db
+  async revokeOwnerShare({ ownerUserId }: { ownerUserId: string }) {
+    const result = await getDb()
       .delete(libraryShares)
       .where(eq(libraryShares.ownerUserId, ownerUserId))
       .returning()
-      .all()
 
     return result[0] ?? null
   },
 
-  resolveShareByToken({ token }: { token: string }) {
-    const rows = db.select().from(libraryShares).where(eq(libraryShares.token, token)).all()
+  async resolveShareByToken({ token }: { token: string }) {
+    const rows = await getDb().select().from(libraryShares).where(eq(libraryShares.token, token))
 
     return rows[0] ?? null
   },
 
-  resolveShareStatusByToken({ token }: { token: string }) {
-    const rows = db
+  async resolveShareStatusByToken({ token }: { token: string }) {
+    const rows = await getDb()
       .select({
         id: libraryShares.id,
         createdAt: libraryShares.createdAt,
@@ -75,37 +71,33 @@ export const sharingService = {
         ownerUserId: libraryShares.ownerUserId,
         token: libraryShares.token,
         updatedAt: libraryShares.updatedAt,
-
       })
       .from(libraryShares)
+      .leftJoin(songs, eq(libraryShares.currentSongId, songs.id))
       .where(eq(libraryShares.token, token))
-      .rightJoin(songs, eq(libraryShares.currentSongId, songs.id))
-      .all()
 
     return rows[0] ?? null
   },
 
-  setCurrentSong({ ownerUserId, songId }: { ownerUserId: string; songId: string | null }) {
-    return db.transaction((tx) => {
+  async setCurrentSong({ ownerUserId, songId }: { ownerUserId: string; songId: string | null }) {
+    return await getDb().transaction(async (tx) => {
       if (songId === null) {
-        const updated = tx
+        const updated = await tx
           .update(libraryShares)
           .set({ currentSongId: null, updatedAt: new Date().toISOString() })
           .where(eq(libraryShares.ownerUserId, ownerUserId))
           .returning()
-          .all()
 
         return updated[0] ?? null
       }
 
-      const existing = tx
+      const existing = await tx
         .select()
         .from(libraryShares)
         .where(eq(libraryShares.ownerUserId, ownerUserId))
-        .all()
 
       if (!existing[0]) {
-        const inserted = tx
+        const inserted = await tx
           .insert(libraryShares)
           .values({
             ownerUserId,
@@ -113,23 +105,21 @@ export const sharingService = {
             currentSongId: songId,
           })
           .returning()
-          .all()
 
         return inserted[0]!
       }
 
-      const updated = tx
+      const updated = await tx
         .update(libraryShares)
         .set({ currentSongId: songId, updatedAt: new Date().toISOString() })
         .where(eq(libraryShares.id, existing[0].id))
         .returning()
-        .all()
 
       return updated[0]!
     })
   },
 
-  upsertMembership({
+  async upsertMembership({
     viewerUserId,
     libraryShareId,
     ownerDisplayName,
@@ -138,8 +128,8 @@ export const sharingService = {
     libraryShareId: string
     ownerDisplayName: string | null
   }) {
-    return db.transaction((tx) => {
-      const existing = tx
+    return await getDb().transaction(async (tx) => {
+      const existing = await tx
         .select()
         .from(libraryMemberships)
         .where(
@@ -148,12 +138,11 @@ export const sharingService = {
             eq(libraryMemberships.libraryShareId, libraryShareId),
           ),
         )
-        .all()
 
       if (existing[0]) {
         const nextStatus: MembershipStatus =
           existing[0].status === 'dismissed' ? 'default' : existing[0].status
-        const updated = tx
+        const updated = await tx
           .update(libraryMemberships)
           .set({
             ownerDisplayName,
@@ -162,12 +151,11 @@ export const sharingService = {
           })
           .where(eq(libraryMemberships.id, existing[0].id))
           .returning()
-          .all()
 
         return updated[0]!
       }
 
-      const inserted = tx
+      const inserted = await tx
         .insert(libraryMemberships)
         .values({
           viewerUserId,
@@ -175,25 +163,24 @@ export const sharingService = {
           ownerDisplayName,
         })
         .returning()
-        .all()
 
       return inserted[0]!
     })
   },
 
-  listMembershipsForViewer({
+  async listMembershipsForViewer({
     viewerUserId,
     includeDismissed,
   }: {
     viewerUserId: string
     includeDismissed: boolean
-  }): SharedLibraryListItem[] {
+  }): Promise<SharedLibraryListItem[]> {
     const conditions = [eq(libraryMemberships.viewerUserId, viewerUserId)]
     if (!includeDismissed) {
       conditions.push(eq(libraryMemberships.status, 'default'))
     }
 
-    return db
+    return await getDb()
       .select({
         id: libraryMemberships.id,
         token: libraryShares.token,
@@ -206,10 +193,9 @@ export const sharingService = {
       .innerJoin(libraryShares, eq(libraryMemberships.libraryShareId, libraryShares.id))
       .where(and(...conditions))
       .orderBy(desc(libraryMemberships.updatedAt))
-      .all()
   },
 
-  updateMembership({
+  async updateMembership({
     id,
     viewerUserId,
     status,
@@ -218,22 +204,20 @@ export const sharingService = {
     viewerUserId: string
     status: MembershipStatus
   }) {
-    const result = db
+    const result = await getDb()
       .update(libraryMemberships)
       .set({ status, updatedAt: new Date().toISOString() })
       .where(and(eq(libraryMemberships.id, id), eq(libraryMemberships.viewerUserId, viewerUserId)))
       .returning()
-      .all()
 
     return result[0] ?? null
   },
 
-  deleteMembership({ id, viewerUserId }: { id: string; viewerUserId: string }) {
-    const result = db
+  async deleteMembership({ id, viewerUserId }: { id: string; viewerUserId: string }) {
+    const result = await getDb()
       .delete(libraryMemberships)
       .where(and(eq(libraryMemberships.id, id), eq(libraryMemberships.viewerUserId, viewerUserId)))
       .returning()
-      .all()
 
     return result[0] ?? null
   },

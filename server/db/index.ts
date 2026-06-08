@@ -1,17 +1,32 @@
-import Database from 'better-sqlite3'
-import { drizzle } from 'drizzle-orm/better-sqlite3'
+import { drizzle } from 'drizzle-orm/postgres-js'
+import postgres from 'postgres'
 
-import { libraryMemberships, libraryShares } from '../modules/sharing/db/schema'
-import { songs } from '../modules/songs/db/schema'
+import { libraryMemberships, libraryShares } from '#server/modules/sharing/db/schema'
+import { songs } from '#server/modules/songs/db/schema'
 
-const sqlite = new Database('songbook.db')
-sqlite.pragma('journal_mode = WAL')
-sqlite.pragma('foreign_keys = ON')
+const schema = {
+  songs,
+  libraryShares,
+  libraryMemberships,
+}
 
-export const db = drizzle(sqlite, {
-  schema: {
-    songs,
-    libraryShares,
-    libraryMemberships,
-  },
-})
+function createDb() {
+  const { dbConnectionString } = useRuntimeConfig()
+
+  if (!dbConnectionString) {
+    throw new Error('DB: DATABASE_URL is required')
+  }
+
+  const client = postgres(dbConnectionString, {
+    prepare: false,
+  })
+
+  return drizzle(client, { schema })
+}
+
+let db: ReturnType<typeof createDb> | null = null
+
+export function getDb() {
+  db ??= createDb()
+  return db
+}

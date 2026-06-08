@@ -23,6 +23,10 @@ logs
 .env.*
 !.env.example
 
+# Local config files
+*.local.ts
+*.local.yml
+
 # clerk configuration (can include secrets)
 /.clerk/
 

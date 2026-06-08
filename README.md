@@ -28,14 +28,37 @@ pnpm dev
 - drizzle-kit (`pn drizzle-kit <command>`)
 - sql-studio (standalone install)
 
+## Database
+
+The app uses Postgres through Drizzle. Create config from [drizzle.config.example.ts](./drizzle.config.example.ts).
+
 ```bash
-sql-studio sqlite ./songbook.db
+cp drizzle.config.example.ts drizzle.config.local.ts
+cp drizzle.config.example.ts drizzle.config.production.ts
 ```
 
-# Build production
+Postgres connection string format: `postgres://USER:PASSWORD@HOST:PORT/DATABASE`
 
-Build the application for production (SPA mode):
+For production, assuming the Postgres instance already exists:
+
+1. Create or choose an application database and an application user.
+2. Grant that user privileges on the database/schema used by the app.
+3. Set `DATABASE_URL` in the production runtime environment.
+4. Apply the current schema:
 
 ```bash
-pnpm generate
+pnpm drizzle-kit migrate --config=drizzle.config.production.ts
+```
+
+Use SSL parameters in `DATABASE_URL` if your provider requires them, for example `?sslmode=require`.
+
+# Production deploy
+
+```bash
+# build
+pnpm build
+# run migrations
+pnpm drizzle-kit migrate --config=drizzle.config.production.ts
+# start
+pnpm start
 ```

@@ -1,10 +1,6 @@
-import { text } from 'drizzle-orm/sqlite-core'
+import { timestamp } from 'drizzle-orm/pg-core'
 
 export const timestamps = {
-  createdAt: text('created_at')
-    .notNull()
-    .$defaultFn(() => new Date().toISOString()),
-  updatedAt: text('updated_at')
-    .notNull()
-    .$defaultFn(() => new Date().toISOString()),
+  createdAt: timestamp('created_at', { mode: 'string', withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true }).notNull().defaultNow(),
 }

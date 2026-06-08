@@ -19,7 +19,7 @@ export default defineEventHandler(async (event): Promise<ShareLibraryResponse> =
   rateLimit(event, { key: 'share-by-token', limit: 30, windowMs: 60_000 })
 
   const token = getRouterParam(event, 'token')!
-  const share = sharingService.resolveShareByToken({ token })
+  const share = await sharingService.resolveShareByToken({ token })
   if (!share) {
     throw createError({ statusCode: 404, statusMessage: 'Share not found' })
   }
@@ -34,14 +34,14 @@ export default defineEventHandler(async (event): Promise<ShareLibraryResponse> =
 
   const viewerUserId = optionalUserId(event)
   if (viewerUserId && viewerUserId !== share.ownerUserId) {
-    sharingService.upsertMembership({
+    await sharingService.upsertMembership({
       viewerUserId,
       libraryShareId: share.id,
       ownerDisplayName,
     })
   }
 
-  const { items, page, pageSize } = songService.filterForOwner({
+  const { items, page, pageSize } = await songService.filterForOwner({
     ownerUserId: share.ownerUserId,
     ...parsed.data,
   })

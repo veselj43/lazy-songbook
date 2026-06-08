@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const result = sharingService.updateMembership({
+  const result = await sharingService.updateMembership({
     id,
     viewerUserId: userId,
     status: parsed.data.status,

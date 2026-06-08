@@ -3,9 +3,9 @@ import type { LibraryShare } from '~~/shared/schema/sharing'
 import { sharingService } from '#server/modules/sharing/sharing.service'
 import { requireUserId } from '#server/utils/auth'
 
-export default defineEventHandler((event): LibraryShare => {
+export default defineEventHandler(async (event): Promise<LibraryShare> => {
   const userId = requireUserId(event)
-  const share = sharingService.getOrCreateOwnerShare({ ownerUserId: userId })
+  const share = await sharingService.getOrCreateOwnerShare({ ownerUserId: userId })
 
   return {
     id: share.id,

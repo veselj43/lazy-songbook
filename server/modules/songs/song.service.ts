@@ -1,7 +1,8 @@
-import { eq, and, or, asc, desc, sql, type SQL, SelectedFields } from 'drizzle-orm'
+import { eq, and, or, asc, desc, sql, type SQL } from 'drizzle-orm'
 import type { CreateSongInput, SongSort, UpdateSongInput } from '~~/shared/schema/song'
 
-import { db } from '../../db'
+import { getDb } from '#server/db'
+
 import { songs } from './db/schema'
 
 interface UserScope {
@@ -47,7 +48,7 @@ interface DeleteParams extends UserScope {
   id: string
 }
 
-function buildListQuery({
+async function buildListQuery({
   ownerCondition,
   sort,
   search,
@@ -60,6 +61,7 @@ function buildListQuery({
   page: number
   pageSize: number
 }) {
+  const db = getDb()
   const conditions: SQL[] = [ownerCondition]
   const trimmedSearch = search?.trim()
   if (trimmedSearch) {
@@ -87,21 +89,21 @@ function buildListQuery({
 
   if (sort && sort.length > 0) {
     const orderBy: SQL[] = sort.map((s) => {
-      const expr = sql`${songs[s.column]} COLLATE NOCASE`
+      const expr =
+        s.column === 'author' || s.column === 'name'
+          ? sql`lower(${songs[s.column]})`
+          : sql`${songs[s.column]}`
       return s.isDesc ? desc(expr) : asc(expr)
     })
     query = query.orderBy(...orderBy)
   }
 
-  return query
-    .limit(pageSize)
-    .offset((page - 1) * pageSize)
-    .all()
+  return await query.limit(pageSize).offset((page - 1) * pageSize)
 }
 
 export const songService = {
-  filter({ userId, page, pageSize, sort, search }: FilterParams) {
-    const items = buildListQuery({
+  async filter({ userId, page, pageSize, sort, search }: FilterParams) {
+    const items = await buildListQuery({
       ownerCondition: eq(songs.userId, userId),
       sort,
       search,
@@ -116,8 +118,8 @@ export const songService = {
     }
   },
 
-  filterForOwner({ ownerUserId, page, pageSize, sort, search }: FilterForOwnerParams) {
-    const items = buildListQuery({
+  async filterForOwner({ ownerUserId, page, pageSize, sort, search }: FilterForOwnerParams) {
+    const items = await buildListQuery({
       ownerCondition: eq(songs.userId, ownerUserId),
       sort,
       search,
@@ -138,18 +140,17 @@ export const songService = {
     }
   },
 
-  getById({ id, userId }: GetByIdParams) {
-    const result = db
+  async getById({ id, userId }: GetByIdParams) {
+    const result = await getDb()
       .select()
       .from(songs)
       .where(and(eq(songs.id, id), eq(songs.userId, userId)))
-      .all()
 
     return result[0]
   },
 
-  getByIdForOwner({ id, ownerUserId }: GetByIdForOwnerParams) {
-    const result = db
+  async getByIdForOwner({ id, ownerUserId }: GetByIdForOwnerParams) {
+    const result = await getDb()
       .select({
         id: songs.id,
         author: songs.author,
@@ -160,14 +161,13 @@ export const songService = {
       })
       .from(songs)
       .where(and(eq(songs.id, id), eq(songs.userId, ownerUserId)))
-      .all()
 
     return result[0]
   },
 
-  create({ input, userId }: CreateParams) {
+  async create({ input, userId }: CreateParams) {
     const now = new Date().toISOString()
-    const result = db
+    const result = await getDb()
       .insert(songs)
       .values({
         ...input,
@@ -176,27 +176,24 @@ export const songService = {
         updatedAt: now,
       })
       .returning()
-      .all()
     return result[0]!
   },
 
-  update({ id, input, userId }: UpdateParams) {
-    const result = db
+  async update({ id, input, userId }: UpdateParams) {
+    const result = await getDb()
       .update(songs)
       .set({ ...input, updatedAt: new Date().toISOString() })
       .where(and(eq(songs.id, id), eq(songs.userId, userId)))
       .returning()
-      .all()
 
     return result[0]
   },
 
-  delete({ id, userId }: DeleteParams) {
-    const result = db
+  async delete({ id, userId }: DeleteParams) {
+    const result = await getDb()
       .delete(songs)
       .where(and(eq(songs.id, id), eq(songs.userId, userId)))
       .returning()
-      .all()
 
     return result[0]
   },
