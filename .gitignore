@@ -26,6 +26,7 @@ logs
 # Local config files
 *.local.ts
 *.local.yml
+drizzle.config.production.ts
 
 # clerk configuration (can include secrets)
 /.clerk/

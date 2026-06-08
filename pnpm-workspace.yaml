@@ -1,1 +1,5 @@
-onlyBuiltDependencies: ''
+allowBuilds:
+  '@parcel/watcher': false
+  better-sqlite3: false
+  esbuild: false
+  vue-demi: false
