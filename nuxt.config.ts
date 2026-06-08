@@ -2,22 +2,31 @@ import type { NuxtPage } from 'nuxt/schema'
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  app: {
+    head: {
+      link: [
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+        { rel: 'icon', type: 'image/png', href: '/favicon-64.png' },
+      ],
+    },
+  },
+
+  clerk: {
+    allowedRedirectOrigins: ['https://songbook.lazytools.win'],
+    // routerDebug: true,
+  },
+
   compatibilityDate: '2025-07-15',
+
+  css: ['~/assets/css/main.css'],
+
   devtools: {
     enabled: true,
   },
 
-  modules: [
-    //
-    '@nuxt/ui',
-    '@nuxt/icon',
-    '@clerk/nuxt',
-    '@pinia/nuxt',
-  ],
-
-  ssr: false,
-
-  css: ['~/assets/css/main.css'],
+  experimental: {
+    typedPages: true,
+  },
 
   hooks: {
     'pages:extend'(pages) {
@@ -38,13 +47,25 @@ export default defineNuxtConfig({
     },
   },
 
-  app: {
-    head: {
-      link: [
-        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-        { rel: 'icon', type: 'image/png', href: '/favicon-64.png' },
-      ],
+  modules: [
+    //
+    '@nuxt/ui',
+    '@nuxt/icon',
+    '@clerk/nuxt',
+    '@pinia/nuxt',
+  ],
+
+  runtimeConfig: {
+    dbConnectionString: '',
+    public: {
+      appUrl: '',
     },
+  },
+
+  ssr: false,
+
+  ui: {
+    colorMode: false,
   },
 
   vite: {
@@ -57,21 +78,6 @@ export default defineNuxtConfig({
         '@vueuse/integrations/useQRCode',
         'tailwind-variants',
       ],
-    },
-  },
-
-  ui: {
-    colorMode: false,
-  },
-
-  experimental: {
-    typedPages: true,
-  },
-
-  runtimeConfig: {
-    dbConnectionString: '',
-    public: {
-      appUrl: '',
     },
   },
 })

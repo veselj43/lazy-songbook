@@ -10,7 +10,7 @@ useHead({
   },
 })
 
-const route = useRoute('index')
+const { afterLoginRedirect } = useSignInRedirect()
 
 const itemsSection = [
   [
@@ -48,14 +48,6 @@ const itemsAll = ref<NavigationMenuItem[][]>([
   itemsGlobal[0],
 ])
 
-const signInRedirectUrl = computed(() => {
-  if (route.query.redirect_url) {
-    return route.query.redirect_url
-  }
-
-  return route.fullPath
-})
-
 const [DefineAuthButtonsTemplate, ReuseAuthButtonsTemplate] = createReusableTemplate()
 </script>
 
@@ -68,7 +60,7 @@ const [DefineAuthButtonsTemplate, ReuseAuthButtonsTemplate] = createReusableTemp
       :to="{
         path: '/sign-in',
         query: {
-          redirect_url: signInRedirectUrl,
+          redirect_url: afterLoginRedirect,
         },
       }"
       >Sign in</UButton
@@ -79,7 +71,7 @@ const [DefineAuthButtonsTemplate, ReuseAuthButtonsTemplate] = createReusableTemp
       :to="{
         path: '/sign-up',
         query: {
-          redirect_url: signInRedirectUrl,
+          redirect_url: afterLoginRedirect,
         },
       }"
       >Sign up</UButton
