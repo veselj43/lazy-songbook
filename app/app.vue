@@ -10,14 +10,19 @@ useHead({
   },
 })
 
-const route = useRoute()
+const route = useRoute('index')
 
 const itemsSection = [
   [
     {
-      label: 'My songs',
+      label: 'My library',
       icon: 'i-lucide:file-music',
       to: '/songs',
+    },
+    {
+      label: 'Shared libraries',
+      icon: 'i-lucide:share-2',
+      to: '/shared',
     },
   ],
 ] as const satisfies NavigationMenuItem[][]

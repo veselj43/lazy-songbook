@@ -11,9 +11,9 @@ useHead({
   title: 'Edit song',
 })
 
-const route = useRoute()
+const route = useRoute('songs-id-edit')
 
-const currentId = computed(() => route.params.id as string)
+const currentId = computed(() => route.params.id)
 
 const { data: song, status: fetchStatus } = useFetchSong({ id: currentId.value })
 

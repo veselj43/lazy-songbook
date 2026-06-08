@@ -50,7 +50,7 @@ describe('lib/chords', () => {
     'P#',
     'Ff',
     'C#/J',
-    'Fmall'
+    'Fmall',
   ])('returns false for non-chord %s', (chord) => {
     const result = isChord(chord)
 

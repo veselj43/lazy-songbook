@@ -4,6 +4,7 @@ import type { AsyncDataRequestStatus } from '#app'
 const props = withDefaults(
   defineProps<{
     fetchStatus: AsyncDataRequestStatus
+    hideError?: boolean
   }>(),
   {},
 )
@@ -23,7 +24,7 @@ const props = withDefaults(
     <slot name="default"></slot>
   </template>
 
-  <template v-else-if="fetchStatus === 'error'">
+  <template v-else-if="fetchStatus === 'error' && !hideError">
     <slot name="error">
       <UAlert color="error" variant="subtle">
         <template #title> Something went wrong, please try again. </template>

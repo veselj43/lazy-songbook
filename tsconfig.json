@@ -1,12 +1,7 @@
 {
   // https://nuxt.com/docs/guide/concepts/typescript
   "files": [],
-  "compilerOptions": {
-    "paths": {
-      // due to drizzle, said AI
-      "#server/*": ["./server/*"]
-    }
-  },
+  "compilerOptions": {},
   "references": [
     {
       "path": "./.nuxt/tsconfig.app.json"

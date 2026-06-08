@@ -18,8 +18,5 @@
   "[typescript]": {
     "editor.defaultFormatter": "oxc.oxc-vscode"
   },
-  "cSpell.words": [
-    "lucide",
-    "nuxt"
-  ]
+  "cSpell.words": ["lucide", "nuxt"]
 }

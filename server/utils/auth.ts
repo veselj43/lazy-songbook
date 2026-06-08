@@ -6,9 +6,13 @@ interface ClerkAuthResult {
 
 type ClerkAuth = () => ClerkAuthResult
 
-export function requireUserId(event: H3Event) {
+export function optionalUserId(event: H3Event): string | null {
   const auth = event.context.auth as ClerkAuth | undefined
-  const userId = auth?.().userId
+  return auth?.().userId ?? null
+}
+
+export function requireUserId(event: H3Event) {
+  const userId = optionalUserId(event)
 
   if (!userId) {
     throw createError({
