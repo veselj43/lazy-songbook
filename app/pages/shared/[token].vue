@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Toast } from '@nuxt/ui/runtime/composables/useToast.js'
-import { useTimeoutPoll } from '@vueuse/core'
+import type { ShareLibraryStatusResponse } from '~~/shared/schema/sharing'
 
 const router = useRouter()
 const route = useRoute('shared-token')
@@ -15,12 +15,59 @@ const viewedSongId = computed(() => {
   return currentRoute.params.id
 })
 
-const { data: sharedStatusData, refresh: refetchSharedStatus } = useFetchSharedLibraryStatus({
-  token: token.value,
-})
+const sharedStatusData = ref<ShareLibraryStatusResponse | null>(null)
 const toast = useToast()
 
-useTimeoutPoll(refetchSharedStatus, 5_000)
+let statusEvents: EventSource | undefined
+
+function closeStatusEvents() {
+  statusEvents?.close()
+  statusEvents = undefined
+}
+
+function parseEventData<T>(event: MessageEvent) {
+  try {
+    return JSON.parse(event.data) as T
+  } catch {
+    return null
+  }
+}
+
+watch(
+  token,
+  (token) => {
+    if (!import.meta.client) return
+
+    closeStatusEvents()
+    sharedStatusData.value = null
+
+    const events = new EventSource(`/api/shared/status/events/${token}`)
+    statusEvents = events
+
+    events.addEventListener('status', (event) => {
+      if (statusEvents !== events) return
+
+      const status = parseEventData<ShareLibraryStatusResponse>(event)
+      if (status) {
+        sharedStatusData.value = status
+      }
+    })
+
+    events.addEventListener('revoked', () => {
+      if (statusEvents !== events) return
+
+      closeStatusEvents()
+      toast.remove(CURRENT_SONG_TOAST_ID)
+      toast.add({
+        title: 'Shared library not found',
+        color: 'error',
+      })
+    })
+  },
+  { immediate: true },
+)
+
+onUnmounted(closeStatusEvents)
 
 watch(
   [() => sharedStatusData.value?.currentSongId, viewedSongId],

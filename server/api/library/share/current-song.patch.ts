@@ -1,5 +1,7 @@
 import { setCurrentSongSchema } from '~~/shared/schema/sharing'
 
+import { shareStatusEvents } from '#server/modules/sharing/share-status.events'
+import { toShareLibraryStatusResponse } from '#server/modules/sharing/share-status.response'
 import { sharingService } from '#server/modules/sharing/sharing.service'
 import { songService } from '#server/modules/songs/song.service'
 import { requireUserId } from '#server/utils/auth'
@@ -25,8 +27,20 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  return await sharingService.setCurrentSong({
+  const share = await sharingService.setCurrentSong({
     ownerUserId: userId,
     songId: parsed.data.songId,
   })
+
+  if (share?.token) {
+    const status = await sharingService.resolveShareStatusByToken({ token: share.token })
+    if (status) {
+      shareStatusEvents.publishStatus({
+        token: share.token,
+        status: toShareLibraryStatusResponse(status),
+      })
+    }
+  }
+
+  return share
 })
