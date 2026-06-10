@@ -4,6 +4,7 @@ import {
 } from '#server/modules/sharing/share-status.events'
 import { toShareLibraryStatusResponse } from '#server/modules/sharing/share-status.response'
 import { sharingService } from '#server/modules/sharing/sharing.service'
+import { tryCatch } from '#shared/lib/tryCatch'
 
 // from h3, not exported
 interface EventStreamMessage {
@@ -33,25 +34,51 @@ export default defineEventHandler(async (event) => {
 
   const eventStream = createEventStream(event)
 
-  const unsubscribe = shareStatusEvents.subscribe({
-    token,
-    listener: async (event) => {
-      await eventStream.push(createSseEvent(event))
+  const { data: unsubscribe, error: subscribeError } = await tryCatch(
+    shareStatusEvents.subscribe({
+      token,
+      listener: async (event) => {
+        await eventStream.push(createSseEvent(event))
 
-      if (event.type === 'revoked') {
-        await eventStream.close()
-      }
-    },
-  })
-  eventStream.onClosed(unsubscribe)
-
-  // don't wait, it resolves after it's sent
-  eventStream.push(
-    createSseEvent({
-      type: 'status',
-      status: toShareLibraryStatusResponse(share),
+        if (event.type === 'revoked') {
+          await eventStream.close()
+        }
+      },
     }),
   )
+
+  if (subscribeError) {
+    console.log('Failed to subscribe to share status events.', subscribeError)
+    throw createError({
+      statusCode: 503,
+      statusMessage: 'Share status events are unavailable',
+    })
+  }
+
+  eventStream.onClosed(unsubscribe)
+
+  const currentShare = await sharingService.resolveShareStatusByToken({ token })
+
+  // don't wait for push, it resolves after it's sent
+  if (!currentShare) {
+    eventStream.push(
+      createSseEvent({
+        type: 'revoked',
+        error: {
+          statusCode: 404,
+          statusMessage: 'Share not found',
+        },
+      }),
+    )
+    eventStream.close()
+  } else {
+    eventStream.push(
+      createSseEvent({
+        type: 'status',
+        status: toShareLibraryStatusResponse(currentShare),
+      }),
+    )
+  }
 
   return eventStream.send()
 })
