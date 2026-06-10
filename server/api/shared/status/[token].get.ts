@@ -1,5 +1,6 @@
 import type { ShareLibraryStatusResponse } from '~~/shared/schema/sharing'
 
+import { toShareLibraryStatusResponse } from '#server/modules/sharing/share-status.response'
 import { sharingService } from '#server/modules/sharing/sharing.service'
 import { rateLimit } from '#server/utils/rateLimit'
 
@@ -16,14 +17,5 @@ export default defineEventHandler(async (event): Promise<ShareLibraryStatusRespo
     })
   }
 
-  return {
-    id: share.id!,
-    createdAt: share.createdAt!,
-    currentSongId: share.currentSongId,
-    currentSongAuthor: share.currentSongAuthor,
-    currentSongName: share.currentSongName,
-    ownerUserId: share.ownerUserId!,
-    token: share.token!,
-    updatedAt: share.updatedAt!,
-  }
+  return toShareLibraryStatusResponse(share)
 })

@@ -10,18 +10,27 @@ const schema = {
   libraryMemberships,
 }
 
-function createDb() {
+function createDbSql() {
   const { dbConnectionString } = useRuntimeConfig()
 
   if (!dbConnectionString) {
     throw new Error('DB: DATABASE_URL is required')
   }
 
-  const client = postgres(dbConnectionString, {
+  return postgres(dbConnectionString, {
     prepare: false,
   })
+}
 
-  return drizzle(client, { schema })
+let dbSql: postgres.Sql | null = null
+
+export function getDbSql() {
+  dbSql ??= createDbSql()
+  return dbSql
+}
+
+function createDb() {
+  return drizzle(getDbSql(), { schema })
 }
 
 let db: ReturnType<typeof createDb> | null = null
