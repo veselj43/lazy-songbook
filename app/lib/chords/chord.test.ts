@@ -25,7 +25,7 @@ const chords = [
 
 const chordsLike = chords.map((chord) => `(${chord})`)
 
-describe('lib/chords', () => {
+describe('lib/chords/chord', () => {
   it.for(chords)('returns true for chord %s', (chord) => {
     const result = isChord(chord)
 

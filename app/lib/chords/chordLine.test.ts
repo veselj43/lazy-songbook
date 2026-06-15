@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { isChordLine } from './chordLine'
+import { parseContentLine, tokenizeLine } from './chordLine'
 
 const chordLines = [
   'B',
@@ -22,13 +22,52 @@ const chordLines = [
   'Dsus4/F#',
   'Em  D  C',
   'Em  D  Am  G  D/F#  Em  D  C x4',
+  'Em  D  Am  G  D/F#  Em  D  C N.C.',
+  'Em  D  Am  G  D/F#  Em  D  C    maybe F',
 ]
 
-describe('lib/chords', () => {
-  it.for(chordLines)('returns true for chord %s', (chord) => {
-    const result = isChordLine(chord)
+describe('lib/chords/chordLine', () => {
+  it('returns tokens for line', () => {
+    const result = tokenizeLine('  A    Dm  F#m    G  N.C.')
 
-    expect(result).toBe(true)
+    expect(result).toEqual([
+      { type: 'space', value: '  ' },
+      { type: 'chord', value: 'A' },
+      { type: 'space', value: '    ' },
+      { type: 'chord', value: 'Dm' },
+      { type: 'space', value: '  ' },
+      { type: 'chord', value: 'F#m' },
+      { type: 'space', value: '    ' },
+      { type: 'chord', value: 'G' },
+      { type: 'space', value: '  ' },
+      { type: 'text', value: 'N.C.' },
+    ])
+  })
+
+  it('returns parsed line for chords', () => {
+    const result = parseContentLine('  A    Dm  F#m    G  N.C.')
+
+    expect(result).toEqual({
+      type: 'chords',
+      tokens: [
+        { type: 'space', value: '  ' },
+        { type: 'chord', value: 'A' },
+        { type: 'space', value: '    ' },
+        { type: 'chord', value: 'Dm' },
+        { type: 'space', value: '  ' },
+        { type: 'chord', value: 'F#m' },
+        { type: 'space', value: '    ' },
+        { type: 'chord', value: 'G' },
+        { type: 'space', value: '  ' },
+        { type: 'text', value: 'N.C.' },
+      ],
+    })
+  })
+
+  it.for(chordLines)('returns chords for line %s', (chord) => {
+    const result = parseContentLine(chord)
+
+    expect(result.type).toBe('chords')
   })
 
   it.for([
@@ -40,9 +79,9 @@ describe('lib/chords', () => {
     'Ff',
     'C#/J',
     'Fmall',
-  ])('returns false for non-chord %s', (chord) => {
-    const result = isChordLine(chord)
+  ])('returns text for non-chord line %s', (chord) => {
+    const result = parseContentLine(chord)
 
-    expect(result).toBe(false)
+    expect(result.type).toBe('text')
   })
 })
