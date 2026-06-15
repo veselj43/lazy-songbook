@@ -4,21 +4,17 @@ This project aims to create online songbook to store songs for playing with frie
 
 Primary use-case is for playing on guitar and singing.
 
-## Target core features
+## Core features
 
 1. user can create and manage their own song library
 2. user can share their library, so others can see their songs
-   - via link, later also QR code
+   - via link or QR code
 3. sing-along/play-along mode, others can see currently played song, so they can sing or play along
    - builds on library sharing feature
-4. vote for next song in sing-along mode
-   - user can vote for next song from the shared library
 
-## Technical idea
+## Technical aspects
 
-Goal is to make functional PoC locally.
-
-When the PoC passes expectations, local solutions will be swapped for deployable and maintainable ones.
+Project is already deployed, no data loss when manipulating with DB schemas.
 
 - UI is in Vue/Nuxt
   - viewing is responsible, mobile-friendly
@@ -26,10 +22,10 @@ When the PoC passes expectations, local solutions will be swapped for deployable
 - API is in Nuxt/H3
   - CRUD operations to DB
 - DB - prostgres sql / object storage
-  - calls to DB will be separated from the rest of the app in service layer, so DB solution can be swapped later if needed
+  - DB calls are separated to service layer, so DB solution can be swapped later if needed (mostly)
 
 ## Instructions
 
 - Do not run dev server or any processes that run on the background indefinitely
 - Prefer imports with aliases `#server/` or `#shared/` over multiple `../`
-  - These aliases DO work, they are just scoped so `#server` cannot be used in `app` for example
+  - These aliases **do** work, they are just scoped so `#server` cannot be used in `app` for example
