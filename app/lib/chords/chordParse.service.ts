@@ -1,25 +1,16 @@
-import { isChordLike } from './chord'
+import type { ChordLineToken, ContentLine } from './chord.interface'
+import { bracketsUnwrap, chordPatternFull } from './chord.service'
 
-interface ChordLineToken {
-  type: 'chord' | 'space' | 'text'
-  value: string
+export const isChord = (text: string): boolean => chordPatternFull.test(text)
+
+export const isChordLike = (text: string): boolean => {
+  const { content } = bracketsUnwrap(text)
+  return isChord(content)
 }
-
-export interface ContentLineText {
-  type: 'text'
-  value: string
-}
-
-export interface ContentLineChords {
-  type: 'chords'
-  tokens: ChordLineToken[]
-}
-
-export type ContentLine = ContentLineText | ContentLineChords
 
 const spaceRegex = /\s/
 
-export const tokenizeLine = (line: string): ChordLineToken[] => {
+export const chordLineTokenize = (line: string): ChordLineToken[] => {
   const tokens: ChordLineToken[] = []
   let lastTokenStartIndex = 0
 
@@ -52,8 +43,8 @@ export const tokenizeLine = (line: string): ChordLineToken[] => {
   return tokens
 }
 
-export const parseContentLine = (line: string): ContentLine => {
-  const tokens = tokenizeLine(line)
+export const contentLineParse = (line: string): ContentLine => {
+  const tokens = chordLineTokenize(line)
   const tokensCord = tokens.filter((token) => token.type === 'chord')
   const tokensText = tokens.filter((token) => token.type === 'text')
 
@@ -66,6 +57,11 @@ export const parseContentLine = (line: string): ContentLine => {
 
   return {
     type: 'chords',
-    tokens,
+    tokens: tokens,
   }
+}
+
+export const chordContentParse = (chordContent: string): ContentLine[] => {
+  const lines = chordContent.split('\n').map((line) => contentLineParse(line))
+  return lines
 }

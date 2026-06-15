@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { type ContentLineChords } from '~/lib/chords/chordLine'
+import { type ContentLineChords } from '~/lib/chords/chord.interface'
 
 const props = defineProps<{
   line: ContentLineChords
+  transpose?: number
 }>()
 </script>
 

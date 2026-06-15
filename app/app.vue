@@ -81,6 +81,7 @@ const [DefineAuthButtonsTemplate, ReuseAuthButtonsTemplate] = createReusableTemp
   <UApp>
     <UHeader
       :ui="{
+        root: tcf('print:hidden'),
         left: tcf('lg:grow-0'),
         center: tcf('grow'),
         right: tcf('lg:grow-0'),
