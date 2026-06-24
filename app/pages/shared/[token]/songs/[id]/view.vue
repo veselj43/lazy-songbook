@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { tcf } from '~/lib/tailwind'
 import LayoutMain from '~/pages/_partial/LayoutMain.vue'
 
 const route = useRoute('shared-token-songs-id-view')
@@ -13,6 +14,8 @@ const { data: song, status: fetchStatus } = useFetchSharedSong({
 useHead({
   title: () => (song.value ? `${song.value.name} by ${song.value.author}` : 'song'),
 })
+
+const transpose = ref(0)
 </script>
 
 <template>
@@ -34,9 +37,13 @@ useHead({
       </template>
     </AppHeader>
 
+    <div class="mb-2 flex justify-end gap-2">
+      <SongTransposeControl v-model="transpose" />
+    </div>
+
     <AsyncContent :fetchStatus="fetchStatus">
       <div v-if="song" class="overflow-x-auto border-y border-y-neutral-200 py-4">
-        <SongContent :content="song.content" />
+        <SongContent :content="song.content" :transpose="transpose" />
       </div>
     </AsyncContent>
   </LayoutMain>

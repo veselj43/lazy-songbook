@@ -69,16 +69,7 @@ const menuItems = computed<DropdownMenuItem[][]>(() => [
   ],
 ])
 
-const transposeInput = ref('0')
-const transposeNumber = computed({
-  get() {
-    const value = Number.parseInt(transposeInput.value)
-    return Number.isSafeInteger(value) ? value : 0
-  },
-  set(value) {
-    transposeInput.value = '' + value
-  },
-})
+const transpose = ref(0)
 </script>
 
 <template>
@@ -119,29 +110,7 @@ const transposeNumber = computed({
     </AppHeader>
 
     <div class="mb-2 flex justify-end gap-2">
-      <UFieldGroup>
-        <UButton variant="outline" color="neutral" @click="transposeNumber--">-1</UButton>
-        <UInput
-          class="w-16"
-          v-model="transposeInput"
-          :ui="{
-            base: tcf('pr-6'),
-            trailing: tcf('pe-0'),
-          }"
-        >
-          <template #trailing v-if="transposeNumber !== 0">
-            <UButton
-              color="neutral"
-              variant="link"
-              size="sm"
-              icon="i-lucide:x"
-              aria-label="Reset transpose"
-              @click="transposeNumber = 0"
-            />
-          </template>
-        </UInput>
-        <UButton variant="outline" color="neutral" @click="transposeNumber++">+1</UButton>
-      </UFieldGroup>
+      <SongTransposeControl v-model="transpose" />
 
       <UButton
         v-if="song"
@@ -158,7 +127,7 @@ const transposeNumber = computed({
 
     <AsyncContent :fetchStatus="fetchStatus">
       <div v-if="song" class="overflow-x-auto border-y border-y-neutral-200 py-4">
-        <SongContent :content="song.content" :transpose="transposeNumber" />
+        <SongContent :content="song.content" :transpose="transpose" />
       </div>
     </AsyncContent>
   </LayoutMain>
