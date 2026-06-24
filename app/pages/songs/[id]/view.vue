@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from '@nuxt/ui'
 
+import { fieldGroup } from '#build/ui'
+import { tcf } from '~/lib/tailwind'
 import LayoutMain from '~/pages/_partial/LayoutMain.vue'
 
 definePageMeta({
@@ -18,8 +20,6 @@ useHead({
   title: () => (song.value ? `${song.value.name} by ${song.value.author}` : 'song'),
 })
 
-const { confirm } = useConfirm()
-
 const playTogetherActive = computed(() => share.value?.currentSongId === currentId.value)
 
 const { execute: handlePlayTogetherToggle, status: playTogetherStatus } = useAsyncAction(
@@ -32,6 +32,8 @@ const { execute: handlePlayTogetherToggle, status: playTogetherStatus } = useAsy
     await refreshShare()
   },
 )
+
+const { confirm } = useConfirm()
 
 const handleDelete = async () => {
   if (!song.value) return
@@ -66,13 +68,21 @@ const menuItems = computed<DropdownMenuItem[][]>(() => [
     },
   ],
 ])
+
+const transpose = ref(0)
 </script>
 
 <template>
   <LayoutMain>
     <AppHeader>
       <template #leftPrepend>
-        <UButton variant="ghost" color="neutral" icon="i-lucide:chevron-left" to="/songs"></UButton>
+        <UButton
+          class="print:hidden"
+          variant="ghost"
+          color="neutral"
+          icon="i-lucide:chevron-left"
+          to="/songs"
+        ></UButton>
       </template>
 
       <template #header>
@@ -82,18 +92,6 @@ const menuItems = computed<DropdownMenuItem[][]>(() => [
       </template>
 
       <template #right>
-        <UButton
-          v-if="song"
-          :icon="playTogetherActive ? 'i-lucide:square' : 'i-lucide:play'"
-          :variant="playTogetherActive ? 'solid' : 'outline'"
-          :color="playTogetherActive ? 'secondary' : 'neutral'"
-          :loading="shareStatus === 'pending' || playTogetherStatus === 'pending'"
-          class="shrink-0"
-          @click="handlePlayTogetherToggle()"
-        >
-          Play together
-        </UButton>
-
         <UDropdownMenu
           :items="menuItems"
           :content="{
@@ -111,9 +109,25 @@ const menuItems = computed<DropdownMenuItem[][]>(() => [
       </template>
     </AppHeader>
 
+    <div class="mb-2 flex justify-end gap-2">
+      <SongTransposeControl v-model="transpose" />
+
+      <UButton
+        v-if="song"
+        class="shrink-0 print:hidden"
+        :icon="playTogetherActive ? 'i-lucide:square' : 'i-lucide:play'"
+        :variant="playTogetherActive ? 'solid' : 'outline'"
+        :color="playTogetherActive ? 'secondary' : 'neutral'"
+        :loading="shareStatus === 'pending' || playTogetherStatus === 'pending'"
+        @click="handlePlayTogetherToggle()"
+      >
+        Play together
+      </UButton>
+    </div>
+
     <AsyncContent :fetchStatus="fetchStatus">
       <div v-if="song" class="overflow-x-auto border-y border-y-neutral-200 py-4">
-        <SongContent :content="song.content" />
+        <SongContent :content="song.content" :transpose="transpose" />
       </div>
     </AsyncContent>
   </LayoutMain>
