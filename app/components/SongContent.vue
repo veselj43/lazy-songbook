@@ -5,6 +5,7 @@ import { chordContentTranspose } from '~/lib/chords/chordTranspose.service'
 const props = defineProps<{
   content: string
   transpose?: number
+  hideChords?: boolean
 }>()
 
 const contentParsed = computed(() => chordContentParse(props.content))
@@ -17,7 +18,6 @@ const contentTransposed = computed(() =>
   <pre class="font-mono text-sm leading-relaxed text-nowrap"><template
     v-for="(line, i) in contentTransposed"
     :key="i"
-  ><SongContentLineChords v-if="line.type === 'chords'" :line="line"></SongContentLineChords
-  ><span v-else>{{ line.value }}</span>
-</template></pre>
+  ><SongContentLineChords v-if="line.type === 'chords'" :line="line" :hideChords="hideChords"></SongContentLineChords
+  ><span v-else>{{ line.value }}{{ '\n' }}</span></template></pre>
 </template>
