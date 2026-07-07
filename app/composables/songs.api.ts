@@ -1,57 +1,36 @@
 import type {
   CreateSongInput,
   Song,
-  SongListResponse,
-  SongSort,
+  SongListRequestBody,
   UpdateSongInput,
 } from '~~/shared/schema/song'
 
-interface FetchSongsBody {
-  page?: number
-  pageSize?: number
-  sort?: SongSort
-  search?: string
-}
-
-const fetchSongs = (body: FetchSongsBody = {}) =>
-  $fetch<SongListResponse>('/api/songs/filter', { method: 'POST', body })
+import { songsApi } from '~/api/songs.api'
 
 export const songsDataKey = 'songs'
+export const songDataKey = ({ id }: { id: string }) => `songs-${id}`
 
-export const useFetchSongs = (body?: MaybeRefOrGetter<FetchSongsBody>) => {
-  const bodyRef = computed<FetchSongsBody>(() => toValue(body) ?? {})
-  return useAsyncData(songsDataKey, () => fetchSongs(bodyRef.value), {
+export const useFetchSongs = (body?: MaybeRefOrGetter<SongListRequestBody>) => {
+  const bodyRef = computed<SongListRequestBody>(() => toValue(body) ?? {})
+  return useAsyncData(songsDataKey, () => songsApi.filter(bodyRef.value), {
     watch: [bodyRef],
   })
 }
 
-const fetchSong = ({ id }: { id: string }) => $fetch<Song>(`/api/songs/${id}`)
-
-export const songDataKey = ({ id }: { id: string }) => `songs-${id}`
-
 export const useFetchSong = ({ id }: { id: string }) =>
-  useAsyncData(songDataKey({ id }), () => fetchSong({ id }))
-
-const createSong = ({ data }: { data: CreateSongInput }) =>
-  $fetch<Song>('/api/songs', { method: 'POST', body: data })
+  useAsyncData(songDataKey({ id }), () => songsApi.getById({ id }))
 
 export const createSongHandler = async ({ data }: { data: CreateSongInput }) => {
-  const result = await createSong({ data })
+  const result = await songsApi.create({ data })
   clearNuxtData(songsDataKey)
   return result
 }
 
-const updateSong = ({ id, data }: { id: string; data: UpdateSongInput }) =>
-  $fetch<Song>(`/api/songs/${id}`, { method: 'PUT', body: data })
-
 export const updateSongHandler = async ({ id, data }: { id: string; data: UpdateSongInput }) => {
-  const result = await updateSong({ id, data })
+  const result = await songsApi.update({ id, data })
   clearNuxtData(songDataKey({ id }))
   return result
 }
-
-const deleteSong = ({ id }: { id: string }) =>
-  $fetch<Song>(`/api/songs/${id}`, { method: 'DELETE' })
 
 export const deleteSongHandler = async ({
   confirmHandler,
@@ -63,7 +42,7 @@ export const deleteSongHandler = async ({
   const result = await confirmHandler()
   if (!result) return false
 
-  await deleteSong({ id: song.id })
+  await songsApi.delete({ id: song.id })
   clearNuxtData(songsDataKey)
   return true
 }

@@ -11,6 +11,13 @@ export default defineNuxtConfig({
     },
   },
 
+  appConfig: {
+    pagination: {
+      defaultMaxPages: 10,
+      defaultPageSize: 50,
+    },
+  },
+
   clerk: {
     allowedRedirectOrigins: ['https://songbook.lazytools.win'],
     // routerDebug: true,
@@ -53,6 +60,7 @@ export default defineNuxtConfig({
     '@nuxt/icon',
     '@clerk/nuxt',
     '@pinia/nuxt',
+    '@pinia/colada-nuxt',
   ],
 
   runtimeConfig: {

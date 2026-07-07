@@ -1,4 +1,5 @@
-import { eq, and, or, asc, desc, sql, type SQL } from 'drizzle-orm'
+import { eq, and, or, asc, desc, count, sql, type SQL } from 'drizzle-orm'
+import type { PaginationResponse } from '~~/shared/schema/api'
 import type { CreateSongInput, SongSort, UpdateSongInput } from '~~/shared/schema/song'
 
 import { getDb } from '#server/db'
@@ -49,31 +50,17 @@ interface DeleteParams extends UserScope {
 }
 
 async function buildListQuery({
-  ownerCondition,
+  conditions,
   sort,
-  search,
   page,
   pageSize,
 }: {
-  ownerCondition: SQL
+  conditions: SQL[]
   sort?: SongSort
-  search?: string
   page: number
   pageSize: number
 }) {
   const db = getDb()
-  const conditions: SQL[] = [ownerCondition]
-  const trimmedSearch = search?.trim()
-  if (trimmedSearch) {
-    const term = `%${trimmedSearch.replace(/[\\%_]/g, '\\$&').toLowerCase()}%`
-    conditions.push(
-      or(
-        sql`lower(${songs.name}) LIKE ${term} ESCAPE '\\'`,
-        sql`lower(${songs.author}) LIKE ${term} ESCAPE '\\'`,
-      )!,
-    )
-  }
-
   let query = db
     .select({
       id: songs.id,
@@ -101,31 +88,86 @@ async function buildListQuery({
   return await query.limit(pageSize).offset((page - 1) * pageSize)
 }
 
+function buildListConditions({ ownerCondition, search }: { ownerCondition: SQL; search?: string }) {
+  const conditions: SQL[] = [ownerCondition]
+  const trimmedSearch = search?.trim()
+  if (trimmedSearch) {
+    const term = `%${trimmedSearch.replace(/[\\%_]/g, '\\$&').toLowerCase()}%`
+    conditions.push(
+      or(
+        sql`lower(${songs.name}) LIKE ${term} ESCAPE '\\'`,
+        sql`lower(${songs.author}) LIKE ${term} ESCAPE '\\'`,
+      )!,
+    )
+  }
+
+  return conditions
+}
+
+async function countListItems({ conditions }: { conditions: SQL[] }) {
+  const result = await getDb()
+    .select({ totalCount: count() })
+    .from(songs)
+    .where(and(...conditions))
+
+  return result[0]?.totalCount ?? 0
+}
+
+function buildPagination({
+  page,
+  pageSize,
+  totalCount,
+}: {
+  page: number
+  pageSize: number
+  totalCount: number
+}): PaginationResponse {
+  const hasNextPage = totalCount > page * pageSize
+
+  return {
+    page,
+    pageSize,
+    totalCount,
+    nextPage: hasNextPage ? page + 1 : null,
+  }
+}
+
 export const songService = {
   async filter({ userId, page, pageSize, sort, search }: FilterParams) {
-    const items = await buildListQuery({
+    const conditions = buildListConditions({
       ownerCondition: eq(songs.userId, userId),
-      sort,
       search,
-      page,
-      pageSize,
     })
+    const [items, totalCount] = await Promise.all([
+      buildListQuery({
+        conditions,
+        sort,
+        page,
+        pageSize,
+      }),
+      countListItems({ conditions }),
+    ])
 
     return {
       items,
-      page,
-      pageSize,
+      pagination: buildPagination({ page, pageSize, totalCount }),
     }
   },
 
   async filterForOwner({ ownerUserId, page, pageSize, sort, search }: FilterForOwnerParams) {
-    const items = await buildListQuery({
+    const conditions = buildListConditions({
       ownerCondition: eq(songs.userId, ownerUserId),
-      sort,
       search,
-      page,
-      pageSize,
     })
+    const [items, totalCount] = await Promise.all([
+      buildListQuery({
+        conditions,
+        sort,
+        page,
+        pageSize,
+      }),
+      countListItems({ conditions }),
+    ])
 
     return {
       items: items.map((s) => ({
@@ -135,8 +177,7 @@ export const songService = {
         createdAt: s.createdAt,
         updatedAt: s.updatedAt,
       })),
-      page,
-      pageSize,
+      pagination: buildPagination({ page, pageSize, totalCount }),
     }
   },
 

@@ -1,5 +1,8 @@
 import { z } from 'zod'
 
+import { paginationRequestSchema, type PaginationResponse } from './api'
+import { songSortSchema } from './song'
+
 export const MEMBERSHIP_STATUS = ['default', 'dismissed'] as const
 export type MembershipStatus = (typeof MEMBERSHIP_STATUS)[number]
 
@@ -53,6 +56,13 @@ export interface SharedLibraryListResponse {
   items: SharedLibraryListItem[]
 }
 
+export const shareSongListRequestBodySchema = paginationRequestSchema.extend({
+  sort: songSortSchema.optional(),
+  search: z.string().min(2).max(100).optional(),
+})
+
+export type ShareSongListRequestBodySchema = z.input<typeof shareSongListRequestBodySchema>
+
 export interface ShareSongListItem {
   id: string
   author: string
@@ -64,8 +74,7 @@ export interface ShareSongListItem {
 export interface ShareLibraryResponse {
   ownerDisplayName: string | null
   items: ShareSongListItem[]
-  page: number
-  pageSize: number
+  pagination: PaginationResponse
 }
 
 export interface ShareSongResponse {

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { uiEventHandler } from '~/lib/eventHandler'
 import { tcf } from '~/lib/tailwind'
 
 const model = defineModel()
@@ -21,7 +22,9 @@ watch(transposeNumber, (value) => {
 
 <template>
   <UFieldGroup>
-    <UButton variant="outline" color="neutral" @click="transposeNumber--">-1</UButton>
+    <UButton variant="outline" color="neutral" @click="uiEventHandler(() => transposeNumber--)"
+      >-1</UButton
+    >
     <UInput
       class="w-16"
       v-model="transposeInput"
@@ -37,10 +40,12 @@ watch(transposeNumber, (value) => {
           size="sm"
           icon="i-lucide:x"
           aria-label="Reset transpose"
-          @click="transposeNumber = 0"
+          @click="uiEventHandler(() => (transposeNumber = 0))"
         />
       </template>
     </UInput>
-    <UButton variant="outline" color="neutral" @click="transposeNumber++">+1</UButton>
+    <UButton variant="outline" color="neutral" @click="uiEventHandler(() => transposeNumber++)"
+      >+1</UButton
+    >
   </UFieldGroup>
 </template>

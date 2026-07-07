@@ -2,6 +2,9 @@
 import { refDebounced } from '@vueuse/core'
 import type { SortableSongColumn } from '~~/shared/schema/song'
 
+import { uiEventHandler } from '~/lib/eventHandler'
+import { tcf, tvCn } from '~/lib/tailwind'
+
 const search = defineModel<string | undefined>('search', { default: undefined })
 const sortColumn = defineModel<SortableSongColumn>('sortColumn', { default: 'updatedAt' })
 const sortDesc = defineModel<boolean>('sortDesc', { default: true })
@@ -33,9 +36,21 @@ watch(searchInputDebounced, (value) => {
       placeholder="Search by name or author"
       icon="i-lucide-search"
       :ui="{
-        base: searchInput && !search ? 'ring-red-500' : '',
+        base: tvCn(searchInput && !search ? 'ring-red-500' : '', 'pr-6'),
+        trailing: tcf('pe-0'),
       }"
-    />
+    >
+      <template #trailing v-if="searchInput">
+        <UButton
+          color="neutral"
+          variant="link"
+          size="sm"
+          icon="i-lucide:x"
+          aria-label="Reset search"
+          @click="uiEventHandler(() => (searchInput = ''))"
+        />
+      </template>
+    </UInput>
 
     <UFieldGroup class="flex min-w-48 grow items-center lg:grow-0">
       <USelect v-model="sortColumn" :items="sortOptions" value-key="value" class="grow" />
@@ -45,7 +60,7 @@ watch(searchInputDebounced, (value) => {
         color="neutral"
         variant="outline"
         :aria-label="sortDesc ? 'Sort descending' : 'Sort ascending'"
-        @click="sortDesc = !sortDesc"
+        @click="uiEventHandler(() => (sortDesc = !sortDesc))"
       />
     </UFieldGroup>
   </div>
