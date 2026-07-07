@@ -1,7 +1,12 @@
 <script setup lang="ts">
+import type { PaginationRequestInput } from '~~/shared/schema/api'
+import type { ShareLibraryResponse } from '~~/shared/schema/sharing'
 import type { SortableSongColumn } from '~~/shared/schema/song'
 
+import { librarySharedApi } from '~/api/libraryShared.api'
 import LayoutMain from '~/pages/_partial/LayoutMain.vue'
+
+type SharedLibraryFetchError = Error & { status?: number }
 
 const route = useRoute('shared-token')
 const token = computed(() => route.params.token)
@@ -9,21 +14,51 @@ const token = computed(() => route.params.token)
 const { isLoaded, isSignedIn } = useAuth()
 const isLoggedIn = computed(() => isLoaded.value && isSignedIn.value)
 
+const {
+  pagination: { defaultMaxPages, defaultPageSize },
+} = useAppConfig()
+
+const pageSize = ref(defaultPageSize)
 const sortColumn = ref<SortableSongColumn>('updatedAt')
 const sortDesc = ref(true)
 const search = ref<string | undefined>(undefined)
 
+const listQuery = computed<PaginationRequestInput>(() => ({
+  pageSize: pageSize.value,
+  sort: [{ column: sortColumn.value, isDesc: sortDesc.value }],
+  search: search.value || undefined,
+}))
+
 const {
-  data: sharedLibraryData,
+  data,
+  hasNextPage,
+  loadNextPage,
   status: fetchStatus,
+  asyncStatus: fetchAsyncStatus,
   error,
-} = useFetchSharedLibrary({
-  token: token.value,
-  body: () => ({
-    sort: [{ column: sortColumn.value, isDesc: sortDesc.value }],
-    search: search.value,
-  }),
-})
+} = useInfiniteQuery<ShareLibraryResponse, SharedLibraryFetchError, number>(() => ({
+  key: [sharedDataKey({ token: token.value }), listQuery.value],
+  query: ({ pageParam }) =>
+    librarySharedApi.songs.filter({
+      token: token.value,
+      body: {
+        ...listQuery.value,
+        page: pageParam,
+      },
+    }),
+  initialPageParam: 1,
+  getNextPageParam: (lastPage) => lastPage.pagination.nextPage,
+  placeholderData: (previousData) => previousData,
+  refetchOnMount: false,
+  maxPages: defaultMaxPages,
+}))
+
+const sharedLibraryData = computed(() => data.value?.pages[0] ?? null)
+const songs = computed(() => data.value?.pages.flatMap((page) => page.items) ?? [])
+
+async function loadMoreSongs() {
+  await loadNextPage({ cancelRefetch: false })
+}
 
 useHead({
   title: () =>
@@ -87,16 +122,27 @@ useHead({
         class="mb-4"
       />
 
-      <div v-if="!sharedLibraryData?.items.length" class="py-12 text-center text-gray-500">
-        This library is empty.
-      </div>
+      <div v-if="!songs.length" class="py-12 text-center text-gray-500">This library is empty.</div>
 
       <div v-else class="flex flex-col gap-3">
         <SongListItem
-          v-for="song in sharedLibraryData.items"
+          v-for="song in songs"
+          :key="song.id"
           :song="song"
           :link="(song) => `/shared/${token}/songs/${song.id}/view`"
         />
+
+        <div v-if="hasNextPage" class="flex justify-center pt-2">
+          <UButton
+            color="neutral"
+            variant="outline"
+            icon="i-lucide-plus"
+            :loading="fetchAsyncStatus === 'loading'"
+            @click="loadMoreSongs"
+          >
+            Load more
+          </UButton>
+        </div>
       </div>
 
       <template #error>

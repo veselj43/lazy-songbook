@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import { paginationRequestSchema, type PaginationResponse } from './api'
+
 export const songSchema = z.object({
   id: z.uuid(),
   userId: z.string(),
@@ -44,8 +46,14 @@ export const songSortSchema = z.array(songSortItemSchema)
 export type SongSortItem = z.infer<typeof songSortItemSchema>
 export type SongSort = z.infer<typeof songSortSchema>
 
+export const songListRequestBodySchema = paginationRequestSchema.extend({
+  sort: songSortSchema.optional(),
+  search: z.string().min(2).max(100).optional(),
+})
+
+export type SongListRequestBody = z.input<typeof songListRequestBodySchema>
+
 export interface SongListResponse {
   items: SongListItem[]
-  page: number
-  pageSize: number
+  pagination: PaginationResponse
 }
