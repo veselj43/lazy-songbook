@@ -9,7 +9,7 @@ Primary use-case is for playing on guitar and singing.
 1. user can create and manage their own song library
 2. user can share their library, so others can see their songs
    - via link or QR code
-3. sing-along/play-along mode, others can see currently played song, so they can sing or play along
+3. play together mode, others can see currently played song, so they can sing or play along
    - builds on library sharing feature
 
 ## Technical aspects
@@ -27,5 +27,7 @@ Project is already deployed, no data loss when manipulating with DB schemas.
 ## Instructions
 
 - Do not run dev server or any processes that run on the background indefinitely
+- Do not run any scripts or commands that affect any environment or database related to any app
+  - Instead stop, ask for check and print the command you would like to run
 - Prefer imports with aliases `#server/` or `#shared/` over multiple `../`
   - These aliases **do** work, they are just scoped so `#server` cannot be used in `app` for example

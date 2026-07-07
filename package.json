@@ -12,7 +12,8 @@
     "postinstall": "nuxt prepare",
     "preview": "nuxt preview",
     "start": "node .output/server/index.mjs",
-    "test": "vitest"
+    "test": "vitest",
+    "typecheck": "nuxi typecheck"
   },
   "dependencies": {
     "@clerk/nuxt": "2.5.3",
