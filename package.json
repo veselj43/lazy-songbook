@@ -44,5 +44,15 @@
   "engines": {
     "node": ">=24.17",
     "pnpm": ">=11.7"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": ">=24.17"
+    },
+    "packageManager": {
+      "name": "pnpm",
+      "version": "11.7.0"
+    }
   }
 }
