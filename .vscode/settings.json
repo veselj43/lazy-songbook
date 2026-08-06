@@ -18,5 +18,6 @@
   "[typescript]": {
     "editor.defaultFormatter": "oxc.oxc-vscode"
   },
-  "cSpell.words": ["lucide", "nuxt"]
+  "cSpell.words": ["lucide", "nuxt"],
+  "js/ts.tsdk.path": "node_modules/typescript/lib"
 }

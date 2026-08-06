@@ -23,7 +23,7 @@ export default defineNuxtConfig({
     // routerDebug: true,
   },
 
-  compatibilityDate: '2025-07-15',
+  compatibilityDate: '2026-07-15',
 
   css: ['~/assets/css/main.css'],
 
@@ -80,7 +80,6 @@ export default defineNuxtConfig({
     optimizeDeps: {
       include: [
         //
-        '@clerk/vue',
         '@vueuse/core',
         '@vueuse/integrations',
         '@vueuse/integrations/useQRCode',
