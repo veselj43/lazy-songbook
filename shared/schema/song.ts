@@ -2,6 +2,12 @@ import { z } from 'zod'
 
 import { paginationRequestSchema, type PaginationResponse } from './api'
 
+export const songMetadataSchema = z.object({
+  capo: z.string().max(15).optional(),
+  key: z.string().max(5).optional(),
+  // tags: z.array(z.string().max(50)).max(50),
+})
+
 export const songSchema = z.object({
   id: z.uuid(),
   userId: z.string(),
@@ -10,6 +16,7 @@ export const songSchema = z.object({
   content: z.string(),
   createdAt: z.string(),
   updatedAt: z.string(),
+  metadata: songMetadataSchema,
 })
 
 export const createSongSchema = z.object({
