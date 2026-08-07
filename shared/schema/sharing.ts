@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 import { paginationRequestSchema, type PaginationResponse } from './api'
-import { songSortSchema } from './song'
+import { songSortSchema, type SongMetadata } from './song'
 
 export const MEMBERSHIP_STATUS = ['default', 'dismissed'] as const
 export type MembershipStatus = (typeof MEMBERSHIP_STATUS)[number]
@@ -69,6 +69,7 @@ export interface ShareSongListItem {
   name: string
   createdAt: string
   updatedAt: string
+  metadata: SongMetadata
 }
 
 export interface ShareLibraryResponse {
@@ -84,4 +85,5 @@ export interface ShareSongResponse {
   content: string
   createdAt: string
   updatedAt: string
+  metadata: SongMetadata
 }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { CreateSongInput } from '~~/shared/schema/song'
+import type { UpdateSongInput } from '~~/shared/schema/song'
 
 import LayoutMain from '~/pages/_partial/LayoutMain.vue'
 
@@ -17,7 +17,7 @@ const currentId = computed(() => route.params.id)
 
 const { data: song, status: fetchStatus } = useFetchSong({ id: currentId.value })
 
-const { execute, status: submitStatus } = useAsyncAction(async (data: CreateSongInput) => {
+const { execute, status: submitStatus } = useAsyncAction(async (data: UpdateSongInput) => {
   await updateSongHandler({ id: currentId.value, data })
   await navigateTo(`/songs/${route.params.id}/view`)
 })
@@ -43,7 +43,7 @@ const { execute, status: submitStatus } = useAsyncAction(async (data: CreateSong
     <AsyncContent :fetchStatus="fetchStatus">
       <SongForm
         v-if="song"
-        :initialValues="{ author: song.author, name: song.name, content: song.content }"
+        :initialValues="song"
         :loading="submitStatus === 'pending'"
         @submit="execute"
       />
