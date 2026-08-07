@@ -4,10 +4,11 @@
   "type": "module",
   "scripts": {
     "build": "nuxt build",
+    "check": "pnpm typecheck && pnpm format",
     "db:generate": "drizzle-kit generate",
     "dev": "nuxt dev",
-    "fmt:check": "oxfmt --check .",
-    "fmt": "oxfmt .",
+    "format:check": "oxfmt --check .",
+    "format": "oxfmt .",
     "generate": "nuxt generate",
     "postinstall": "nuxt prepare",
     "preview": "nuxt preview",
@@ -42,18 +43,18 @@
     "vitest": "^4.1.10",
     "vue-tsc": "^3.3.8"
   },
-  "engines": {
-    "node": ">=24.17",
-    "pnpm": ">=11.7"
-  },
   "devEngines": {
-    "runtime": {
-      "name": "node",
-      "version": ">=24.17"
-    },
     "packageManager": {
       "name": "pnpm",
       "version": "11.7.0"
+    },
+    "runtime": {
+      "name": "node",
+      "version": ">=24.17"
     }
+  },
+  "engines": {
+    "node": ">=24.17",
+    "pnpm": ">=11.7"
   }
 }
