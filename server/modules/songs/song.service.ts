@@ -1,6 +1,13 @@
-import { eq, and, or, asc, desc, count, sql, type SQL } from 'drizzle-orm'
+import { and, asc, count, desc, eq, or, sql, type SQL } from 'drizzle-orm'
 import type { PaginationResponse } from '~~/shared/schema/api'
-import type { CreateSongInput, SongSort, UpdateSongInput } from '~~/shared/schema/song'
+import {
+  songMetadataSchema,
+  type CreateSongData,
+  type SongMetadata,
+  type SongMetadataInput,
+  type SongSort,
+  type UpdateSongData,
+} from '~~/shared/schema/song'
 
 import { getDb } from '#server/db'
 
@@ -37,16 +44,29 @@ interface GetByIdForOwnerParams extends OwnerScope {
 }
 
 interface CreateParams extends UserScope {
-  input: CreateSongInput
+  input: CreateSongData
 }
 
 interface UpdateParams extends UserScope {
   id: string
-  input: UpdateSongInput
+  input: UpdateSongData
 }
 
 interface DeleteParams extends UserScope {
   id: string
+}
+
+function parseSongMetadata(metadata: unknown): SongMetadata {
+  return songMetadataSchema.parse(metadata)
+}
+
+function withParsedMetadata<T extends { metadata: SongMetadataInput }>(
+  song: T,
+): Omit<T, 'metadata'> & { metadata: SongMetadata } {
+  return {
+    ...song,
+    metadata: parseSongMetadata(song.metadata),
+  }
 }
 
 async function buildListQuery({
@@ -69,6 +89,7 @@ async function buildListQuery({
       name: songs.name,
       createdAt: songs.createdAt,
       updatedAt: songs.updatedAt,
+      metadata: songs.metadata,
     })
     .from(songs)
     .where(and(...conditions))
@@ -85,7 +106,8 @@ async function buildListQuery({
     query = query.orderBy(...orderBy)
   }
 
-  return await query.limit(pageSize).offset((page - 1) * pageSize)
+  const result = await query.limit(pageSize).offset((page - 1) * pageSize)
+  return result.map(withParsedMetadata)
 }
 
 function buildListConditions({ ownerCondition, search }: { ownerCondition: SQL; search?: string }) {
@@ -176,6 +198,7 @@ export const songService = {
         name: s.name,
         createdAt: s.createdAt,
         updatedAt: s.updatedAt,
+        metadata: s.metadata,
       })),
       pagination: buildPagination({ page, pageSize, totalCount }),
     }
@@ -187,7 +210,8 @@ export const songService = {
       .from(songs)
       .where(and(eq(songs.id, id), eq(songs.userId, userId)))
 
-    return result[0]
+    const song = result[0]
+    return song ? withParsedMetadata(song) : undefined
   },
 
   async getByIdForOwner({ id, ownerUserId }: GetByIdForOwnerParams) {
@@ -199,11 +223,13 @@ export const songService = {
         content: songs.content,
         createdAt: songs.createdAt,
         updatedAt: songs.updatedAt,
+        metadata: songs.metadata,
       })
       .from(songs)
       .where(and(eq(songs.id, id), eq(songs.userId, ownerUserId)))
 
-    return result[0]
+    const song = result[0]
+    return song ? withParsedMetadata(song) : undefined
   },
 
   async create({ input, userId }: CreateParams) {
@@ -215,19 +241,27 @@ export const songService = {
         userId,
         createdAt: now,
         updatedAt: now,
+        metadata: parseSongMetadata(input.metadata),
       })
       .returning()
-    return result[0]!
+
+    return withParsedMetadata(result[0]!)
   },
 
   async update({ id, input, userId }: UpdateParams) {
+    const values = {
+      ...input,
+      ...(input.metadata === undefined ? {} : { metadata: parseSongMetadata(input.metadata) }),
+      updatedAt: new Date().toISOString(),
+    }
     const result = await getDb()
       .update(songs)
-      .set({ ...input, updatedAt: new Date().toISOString() })
+      .set(values)
       .where(and(eq(songs.id, id), eq(songs.userId, userId)))
       .returning()
 
-    return result[0]
+    const song = result[0]
+    return song ? withParsedMetadata(song) : undefined
   },
 
   async delete({ id, userId }: DeleteParams) {
@@ -236,6 +270,7 @@ export const songService = {
       .where(and(eq(songs.id, id), eq(songs.userId, userId)))
       .returning()
 
-    return result[0]
+    const song = result[0]
+    return song ? withParsedMetadata(song) : undefined
   },
 }

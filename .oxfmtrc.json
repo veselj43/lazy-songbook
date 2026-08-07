@@ -8,5 +8,5 @@
     "stylesheet": "./app/assets/css/main.css",
     "functions": ["tvCn", "tcf"]
   },
-  "ignorePatterns": []
+  "ignorePatterns": ["drizzle/**"]
 }

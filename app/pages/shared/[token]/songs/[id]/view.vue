@@ -37,8 +37,14 @@ const transpose = ref(0)
       </template>
     </AppHeader>
 
-    <div class="mb-2 flex justify-end gap-2">
-      <SongTransposeControl v-model="transpose" />
+    <div class="mb-2 flex flex-wrap justify-between gap-x-4 gap-y-2">
+      <div class="flex gap-2">
+        <SongMetadata v-if="song" :song="song" />
+      </div>
+
+      <div class="flex grow justify-end gap-2">
+        <SongTransposeControl v-model="transpose" />
+      </div>
     </div>
 
     <AsyncContent :fetchStatus="fetchStatus">

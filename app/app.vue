@@ -35,6 +35,7 @@ const itemsGlobal = [
     //   to: '/settings',
     //   disabled: true,
     // },
+
   ],
 ] as const satisfies NavigationMenuItem[][]
 

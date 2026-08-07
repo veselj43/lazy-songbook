@@ -8,6 +8,20 @@
       "when": 1780918325986,
       "tag": "0000_mute_champions",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1786099656893,
+      "tag": "0001_chilly_lizard",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1786100840460,
+      "tag": "0002_nifty_scourge",
+      "breakpoints": true
     }
   ]
 }

@@ -33,5 +33,6 @@ export default defineEventHandler(async (event): Promise<ShareSongResponse> => {
     content: song.content,
     createdAt: song.createdAt,
     updatedAt: song.updatedAt,
+    metadata: song.metadata,
   }
 })
